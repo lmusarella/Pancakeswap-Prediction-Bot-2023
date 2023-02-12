@@ -87,8 +87,6 @@ const getHistory = async (fileName) => {
         winner: closePrice.gt(lockPrice) ? "bull" : "bear",
       },
     ];
-
-    console.log('round data ', parsedRound);
     return parsedRound;
   }
 
