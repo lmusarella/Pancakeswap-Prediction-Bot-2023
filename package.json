@@ -1,0 +1,21 @@
+{
+  "name": "pancakeswap-prediction-game-bot",
+  "version": "1.0.0",
+  "type":"commonjs",
+  "scripts": {
+    "bnb-bot": "node ./bot-scripts/trading-bot-with-signals-bnbusdt.js",
+    "cake-bot": "node ./bot-scripts/trading-bot-with-signals-cakeusdt.js",
+    "bnb-copybot": "node ./bot-scripts/copy-trading-bot-bnbusdt.js",
+    "cake-copybot": "node ./bot-scripts/copy-trading-bot-cakeusdt.js"
+  },
+  "private": true,
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "ethers": "^5.5.3",
+    "big.js": "^6.1.1",
+    "cross-fetch": "^3.1.4",
+    "lodash": "^4.17.21",
+    "trading-view-recommends-parser-nodejs": "^1.0.2",
+    "tslib": "^2.3.1"
+  }
+}
