@@ -114,10 +114,10 @@ WALLET_ADDRESS_TO_EMULATE: '0xfB669b0e0656036D747d6C6F2666e530139d2899' // Addre
 ```
 4. Start the bot using `npm` or `yarn`
 
-1. ***npm run bnb-bot*** start trading bot with signals on BNBUDS PancakeSwap Prediction Game
-2. ***npm run cake-bot*** start trading bot with signals on CAKEUSD PancakeSwap Prediction Game
-3. ***npm run bnb-copybot*** start copy trading bot on BNBUDS PancakeSwap Prediction Game
-4. ***npm run cake-copybot*** start copy trading bot on CAKEUSD gamPancakeSwap Prediction Game
+  - `npm run bnb-bot` start trading bot with signals on BNBUDS PancakeSwap Prediction Game
+  - `npm run cake-bot` start trading bot with signals on CAKEUSD PancakeSwap Prediction Game
+  - `npm run bnb-copybot` start copy trading bot on BNBUDS PancakeSwap Prediction Game
+  - `npm run cake-copybot` start copy trading bot on CAKEUSD gamPancakeSwap Prediction Game
 
 5. 🔮 Enjoy!
 
