@@ -86,8 +86,8 @@ https://nodejs.org/en/download/
 
 Then run the following commands in terminal:
 
-1. ``git clone https://github.com/bobalice7/PCS-Prediction.git`` 
-2. ``cd PCS-Prediction-V2.git``
+1. ``git clone https://github.com/lmusarella/PCS-Prediction-V2.git`` 
+2. ``cd PCS-Prediction-V2``
 3. ``npm i``
 
 ![enter image description here](/assets/img/setup.jpg?raw=true)
