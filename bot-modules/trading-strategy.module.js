@@ -30,9 +30,11 @@ const executeStrategyWithQuotes = async (epoch, betAmount, crypto) => {
   const bearPayout = parseFloat(parsedRoundData.bearPayout);
   console.log(`⬆️  BullPayout ${bullPayout}x - ⬇️  BearPayout ${bearPayout}x for Round: ${epoch.toString()}`);   
   if(QUOTE_STRATEGY_CONFIG.SELECT_LOWER_QUOTE) {
-    bullPayout > bearPayout ? betDownStrategy(betAmount, epoch, crypto) : betUpStrategy(betAmount, epoch, crypto);
+    console.log(`👇🏻 Bot chose the lowest quote!`);   
+    bullPayout > bearPayout ? await betDownStrategy(betAmount, epoch, crypto) : await betUpStrategy(betAmount, epoch, crypto);
   } else {
-    bullPayout > bearPayout ? betUpStrategy(betAmount, epoch, crypto) : betDownStrategy(betAmount, epoch, crypto);
+    console.log(`👆🏻 Bot chose the highest quote!`);
+    bullPayout > bearPayout ? await betUpStrategy(betAmount, epoch, crypto) : await betDownStrategy(betAmount, epoch, crypto);
   }
 };
 

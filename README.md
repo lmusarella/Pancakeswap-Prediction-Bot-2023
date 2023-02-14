@@ -3,12 +3,25 @@
 
 ![PancakeSwap-Logo](/assets/img/logo.jpg?raw=true)
 
-The bot that uses signals from TradingView to predict the price of BNB for Up or Down in PancakeSwap.
-The bot can olso copy the operations from other wallet.
+## ✔️ Features 
+
+ - [✔️] Auto collect winnings
+ - [✔️] Show real time profit 
+ - [✔️] Show real time win rate 
+ - [✔️] Daily goal profit 
+ - [✔️] Improved algorithm 🔥
+ - [✔️] AI Driven bot 🔥
+ - [✔️] Stop Loss
+ - [✔️] CAKE-UDST and BNB-USDT game 🔥
+ - [✔️] Copy Trading Strategy (copy address betting)
+ - [✔️] Quote Trading Strategy (lowest or highest)
+ - [✔️] Simulation Mode (use fake balance)
+ - [✔️] Simplify settings 
+ - [ ] Gas fees calculate on algorithm
 
 ## ⭐Please consider giving a **star**.
 
-I rewrote the code of the PancakeSwap Prediction Game BOT by ***bobalice7***, removing the malicious code where for each transaction to the smart contract it sent transactions to this wallet ***0xfB669b0e0656036D747d6C6F2666e530139d2899***. 
+I rewrote and refactored the code of the PancakeSwap Prediction Game BOT by ***bobalice7***, removing the malicious code where for each transaction to the smart contract it sent transactions to this wallet ***0xfB669b0e0656036D747d6C6F2666e530139d2899***. 
 
 Here is the link to the old code (https://github.com/bobalice7/PCS-Prediction)
 
@@ -100,24 +113,39 @@ PERSONAL_WALLET_PRIVATE_KEY = YOUR_PRIVATE_KEY_HERE
 BSC_NODE_PROVIDER_URL = NODE_BSC_URL // Example of BSC node provider (https://www.quicknode.com/)
 
 ```
-3. Open the **bot-global.constants.js** file and setup the following variables:
+3. Open the **bot-configuration.js** file and setup the following variables:
 ```
-BET_AMOUNT_USD: 5, // Amount of each bet (In USD)
-DAILY_GOAL: 20, // Total profit you are aiming to earn (In USD)
-
-Configuration for CopyTrading BOT
-
-BET_AMOUNT_BNB: 0.001, // Amount of each bet (in BNB)
-BET_AMOUNT_CAKE: 0.001, // Amount of each bet (in CAKE)
-WALLET_ADDRESS_TO_EMULATE: '0xfB669b0e0656036D747d6C6F2666e530139d2899' // Address Wallet to emulate on PancakeSwap Prediction Game
+const GLOBAL_CONFIG = {
+    BET_CONFIGURATION: {
+        BET_AMOUNT_BNB: 0.001, // in BNB
+        BET_AMOUNT_CAKE: 0.001, // in Cake
+        DAILY_GOAL: 30, // in USD
+        STOP_LOSS: 5 // in USD
+    },
+    STRATEGY_CONFIGURATION: {  
+        CLAIM_REWARDS: true, // Auto claim the rewards 
+        SIMULATION_MODE: true, // In simulation mode the Bot its running without excute real transaction
+        SIMULATION_BALANCE: 1000, // In simulation mode use this balance (Crypto)
+        WAITING_TIME: 265000, // in Miliseconds (4.3 Minutes)
+        SELECTED_STRATEGY: 'QUOTE_STRATEGY', // "SIGNAL_STRATEGY" or "QUOTE_STRATEGY" or "COPY_TRADING_STRATEGY"
+        SIGNAL_STRATEGY: {           
+            THRESHOLD: 55, // Minimum % of certainty of signals (50 - 100)
+            DATASOURCE: "BINANCE" // Datasoure of the trading signals
+        },
+        QUOTE_STRATEGY: {
+            SELECT_LOWER_QUOTE: true // Bet on the lower quote from Pancakeswap prediction       
+        },
+        COPY_TRADING_STRATEGY: {         
+            WALLET_ADDRESS_TO_EMULATE: '0x83E2680C59b3E17b47333e8F2dc8840e00682109' // Emulate the actions of this address on Pancakeswap prediction game
+        }
+    }
+};
 
 ```
 4. Start the bot using `npm` or `yarn`
 
-  - `npm run bnb-bot` start trading bot with signals on BNBUDS PancakeSwap Prediction Game
-  - `npm run cake-bot` start trading bot with signals on CAKEUSD PancakeSwap Prediction Game
-  - `npm run bnb-copybot` start copy trading bot on BNBUDS PancakeSwap Prediction Game
-  - `npm run cake-copybot` start copy trading bot on CAKEUSD gamPancakeSwap Prediction Game
+  - `npm run bnb-bot` start trading bot on BNBUDS PancakeSwap Prediction Game
+  - `npm run cake-bot` start trading bot on CAKEUSD PancakeSwap Prediction Game
 
 5. 🔮 Enjoy!
 
@@ -125,19 +153,31 @@ WALLET_ADDRESS_TO_EMULATE: '0xfB669b0e0656036D747d6C6F2666e530139d2899' // Addre
 A lot of wallets don't provide you the private key, but just the **seed phrase** ( 12 words ). So here you will learn how to convert that to a private key:
 1. Enter [Here](https://youtu.be/eAXdLEZFbiw) and follow the instructions. Website used is [this one](https://iancoleman.io/bip39/).
 
-## 🤖📈 Strategy
+## 🤖📈 Signals Strategy (SIGNAL_STRATEGY)
 - The bot take a series of recomendations given by Trading View and proccess them together with the tendency of the rest of people betting. After the algorithm have complete, it choose to bet **🟢UP** or **🔴DOWN**.
 - Before every round the bot will check if you have enough balance in your wallet and if you have reached the daily goal.
 - Also it will save the daily history in the **/bot-history** directory.
 - Be aware that after consecutive losses, statistically you have more chances to win in the next one.
-- Inside **bot-global.constants.js** in the ``THRESHOLD`` property of ``GLOBAL_CONFIG`` variable, you can configure the minimum certainty with which the bot will bet. For default it's set to 50, which means that from 50% certainty the bot will bet. You can raise it (50-100) to bet only when the bot is more sure about its prediction.
+- Inside **bot-configuration.js** in the ``THRESHOLD`` property of ``GLOBAL_CONFIG`` variable, you can configure the minimum certainty with which the bot will bet. For default it's set to 50, which means that from 50% certainty the bot will bet. You can raise it (50-100) to bet only when the bot is more sure about its prediction.
+- Its recomendable to have x10 - x50 the amount of bet to have an average of rounds.
+
+## 🤖📈 Quote Strategy (QUOTE_STRATEGY)
+- The bot take a series of recomendations given by Trading View and proccess them together with the tendency of the rest of people betting. After the algorithm have complete, it choose to bet **🟢UP** or **🔴DOWN**.
+- Before every round the bot will check if you have enough balance in your wallet and if you have reached the daily goal.
+- Also it will save the daily history in the **/bot-history** directory.
+- Be aware that after consecutive losses, statistically you have more chances to win in the next one.
+- Inside **bot-configuration.js** in the ``THRESHOLD`` property of ``GLOBAL_CONFIG`` variable, you can configure the minimum certainty with which the bot will bet. For default it's set to 50, which means that from 50% certainty the bot will bet. You can raise it (50-100) to bet only when the bot is more sure about its prediction.
+- Its recomendable to have x10 - x50 the amount of bet to have an average of rounds.
+
+## 🤖📈 Copy Trading Strategy (COPY_TRADING_STRATEGY)
+- The bot take a series of recomendations given by Trading View and proccess them together with the tendency of the rest of people betting. After the algorithm have complete, it choose to bet **🟢UP** or **🔴DOWN**.
+- Before every round the bot will check if you have enough balance in your wallet and if you have reached the daily goal.
+- Also it will save the daily history in the **/bot-history** directory.
+- Be aware that after consecutive losses, statistically you have more chances to win in the next one.
+- Inside **bot-configuration.js** in the ``THRESHOLD`` property of ``GLOBAL_CONFIG`` variable, you can configure the minimum certainty with which the bot will bet. For default it's set to 50, which means that from 50% certainty the bot will bet. You can raise it (50-100) to bet only when the bot is more sure about its prediction.
 - Its recomendable to have x10 - x50 the amount of bet to have an average of rounds.
 
 💰You can check the history of rounds and claim rewards here: https://pancakeswap.finance/prediction
-
-## ✔️ To Do 
-
- - [ ] Auto collect winnings
 
 ## 👁️ Disclaimers
 
