@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "type":"commonjs",
   "scripts": {
-    "bnb-bot": "node ./bot-scripts/trading-bot-with-signals-bnbusdt.js",
-    "cake-bot": "node ./bot-scripts/trading-bot-with-signals-cakeusdt.js",
-    "bnb-copybot": "node ./bot-scripts/copy-trading-bot-bnbusdt.js",
-    "cake-copybot": "node ./bot-scripts/copy-trading-bot-cakeusdt.js"
+    "bnb-bot": "node ./bot-scripts/trading-bot-bnbusdt.js",
+    "cake-bot": "node ./bot-scripts/trading-bot-cakeusdt.js"
   },
   "private": true,
   "dependencies": {

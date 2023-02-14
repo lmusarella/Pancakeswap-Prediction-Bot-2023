@@ -2,70 +2,62 @@
  * @Module 
  * @author luca.musarella
  */
-
-const fs = require('fs');
 const _ = require("lodash");
 const Big = require("big.js");
 const {utils} = require('ethers');
+const {writeOrUpdateFile, getFileJsonContent, percentageChange} = require('./utils.module');
+const {BET_DOWN, BET_UP} = require("../bot-configuration/constants/bot.constants");
 
-const getHistoryFileName = () => {
-    const date = new Date();
-    const day = date.getDate();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${year}${month}${day}`;
-  };
+const generateFilePath = (fileName) => {
+  const date = new Date();
+  const day = date.getDate();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return getFilePath(`${year}${month}${day}-${fileName}`);
+};
 
-const getHistory = async (fileName) => {
-    let history = fileName ? fileName : getHistoryFileName();
-    let path = `./bot-history/${history}.json`;
-    try {
-      if (fs.existsSync(path)) {
-        let history, historyParsed;
-        try {
-          history = fs.readFileSync(path);
-          historyParsed = JSON.parse(history);
-        } catch (e) {
-          console.log("Error reading history:", e);
-          return;
-        }
-        return historyParsed;
-      } else {
-        return;
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+const getFilePath = (fileName) => {
+    return `./bot-history/${fileName}.json`;
+};
 
-  const saveRoundInHistory = async (roundData) => {
-    const historyName = getHistoryFileName();
-    const path = `./bot-history/${historyName}.json`;
-    try {
-      if (fs.existsSync(path)) {
-          let updated, history, merged, historyParsed;
-          try {
-            history = fs.readFileSync(path);
-            historyParsed = JSON.parse(history);
-            merged = _.merge(
-              _.keyBy(historyParsed, "round"),
-              _.keyBy(roundData, "round")
-            );
-            updated = _.values(merged);
+  const saveRoundInHistory = async (roundData, fileName) => {
+    const path = generateFilePath(fileName.toLowerCase());
+    const roundsHistoryParsed = await getFileJsonContent(path);
+    if (roundsHistoryParsed) {
+          let mergedRoundsHistory;
+          try {        
+            mergedRoundsHistory = mergeRoundHistory(roundsHistoryParsed, roundData);
           } catch (e) {
             console.log(e);
             return;
           }      
-          fs.writeFileSync(path, JSON.stringify(updated), "utf8");
-          return updated;  
+          writeOrUpdateFile(path, mergedRoundsHistory);
+          return mergedRoundsHistory;  
       } else {       
-        fs.writeFileSync(path, JSON.stringify(roundData), "utf8");
+        writeOrUpdateFile(path, roundData);
         return roundData; 
       }
-    } catch (err) {
-      console.error(err);
-    }
   };
+
+  const getStatisticFromHistory = async (fileName) => {
+    const path = generateFilePath(fileName.toLowerCase());
+    const statisticsHistoryParsed = await getFileJsonContent(path);
+    return statisticsHistoryParsed;
+  }
+
+  const saveStatisticsInHistory = async (statisticsData, fileName) => {
+    const path = generateFilePath(fileName.toLowerCase());
+    writeOrUpdateFile(path, statisticsData);
+    return statisticsData; 
+  };
+
+  const mergeRoundHistory = (roundsHistoryParsed, roundData) => {
+    const mergedRoundsHistory = _.merge(
+        _.keyBy(roundsHistoryParsed, "round"),
+        _.keyBy(roundData, "round")
+      );
+    return _.values(mergedRoundsHistory);
+}
 
   const parseRoundDataFromSmartContract = (round, data) => {
     const closePrice = data.closePrice;
@@ -73,8 +65,13 @@ const getHistory = async (fileName) => {
     const bullAmount = data.bullAmount;
     const bearAmount = data.bearAmount;
     const totalAmount = new Big(data.totalAmount);
-    const bullPayout = totalAmount.div(bullAmount).round(3).toString();
-    const bearPayout = totalAmount.div(bearAmount).round(3).toString();
+    let bullPayout, bearPayout = 0;
+    try {  
+      bullPayout = totalAmount.div(bullAmount).round(3).toString();
+      bearPayout = totalAmount.div(bearAmount).round(3).toString();
+    } catch (e) {
+      console.log(e)
+    }
     const parsedRound = [
       {
         round: round.toString(),
@@ -84,15 +81,47 @@ const getHistory = async (fileName) => {
         bearAmount: utils.formatUnits(data.bearAmount, "18"),
         bullPayout: bullPayout,
         bearPayout: bearPayout,
-        winner: closePrice.gt(lockPrice) ? "bull" : "bear",
+        winner: closePrice.gt(lockPrice) ? BET_UP : BET_DOWN
       },
     ];
     return parsedRound;
   }
 
+  const getNewStatistics = (roundHistoryData, cryptoUSDPrice) => {
+    let totalEarnings = 0;
+    let roundEarnings = 0;
+    let win = 0;
+    let loss = 0;
+    if (roundHistoryData) {
+      roundHistoryData.filter((round) => round.bet && round.winner).forEach((roundBetted) => {    
+        const betAmount = parseFloat(roundBetted.betAmount);   
+        if(roundBetted.bet == roundBetted.winner) {
+          win++; 
+          const bullPayout = parseFloat(roundBetted.bullPayout);
+          const bearPayout = parseFloat(roundBetted.bearPayout);
+          roundEarnings = roundBetted.winner == BET_UP ? (betAmount * bullPayout - betAmount) : (betAmount * bearPayout - betAmount);
+          totalEarnings += roundEarnings;
+        } else {
+          loss++;
+          totalEarnings -= betAmount;
+        }
+      });
+    }
+    const percentage = -percentageChange(win + loss, loss);
+    return {
+      profit_usd: totalEarnings * cryptoUSDPrice,
+      profit_crypto: totalEarnings,
+      percentage: (isNaN(percentage) ? 0 : percentage) + " %",
+      win: win,
+      loss: loss
+    };
+}
+
   module.exports = {
-    getHistoryFileName,
-    getHistory,
+    generateFilePath,
     saveRoundInHistory,
-    parseRoundDataFromSmartContract
+    parseRoundDataFromSmartContract,
+    saveStatisticsInHistory,
+    getStatisticFromHistory,
+    getNewStatistics
 };
