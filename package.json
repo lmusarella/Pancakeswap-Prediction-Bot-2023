@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "type":"commonjs",
   "scripts": {
-    "bnb-bot": "node ./bot-scripts/trading-bot-bnbusdt.js",
-    "cake-bot": "node ./bot-scripts/trading-bot-cakeusdt.js"
+    "pcs-bot": "node ./bot-script/pcs-bot.js"
   },
   "private": true,
   "dependencies": {
