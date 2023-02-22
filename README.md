@@ -1,23 +1,23 @@
   
-# 🔮🚀 PCS-Prediction v2.0 (NO HIDDEN TRANSACTIONS)
+# 🔮🚀 PCS-Prediction v2.0
 
 ![PancakeSwap-Logo](/assets/img/logo.jpg?raw=true)
 
 ## ✔️ Features 
 
-  [✔️] CAKE-UDST and BNB-USDT game 🔥
-  [✔️] Simulation Mode (use fake balance) 🔥
-  [✔️] Auto collect winnings 🔥
-  [✔️] Copy Trading Strategy (copy address betting) 🔥
-  [✔️] Quote Trading Strategy (lowest or highest) 🔥
-  [✔️] Simplify settings 🔥
-  [✔️] Gas fees calculate on algorithm 🔥
-  [✔️] Show real time profit 
-  [✔️] Show real time win rate 
-  [✔️] Daily goal profit
-  [✔️] Stop Loss
-  [✔️] Improved algorithm 2.0 (bug fix)
-  [✔️] AI Driven bot
+ - [✔️] CAKE-UDST and BNB-USDT game 🔥
+ - [✔️] Simulation Mode (use fake balance) 🔥
+ - [✔️] Auto collect winnings 🔥
+ - [✔️] Copy Trading Strategy (copy address betting) 🔥
+ - [✔️] Quote Trading Strategy (lowest or highest) 🔥
+ - [✔️] Simplify settings 🔥
+ - [✔️] Gas fees calculate on algorithm 🔥
+ - [✔️] Show real time profit 
+ - [✔️] Show real time win rate 
+ - [✔️] Daily goal profit
+ - [✔️] Stop Loss
+ - [✔️] Improved algorithm 2.0 (bug fix)
+ - [✔️] AI Driven bot
 
 ## ⭐Please consider giving a **star**.
 
