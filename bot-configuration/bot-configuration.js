@@ -20,14 +20,14 @@ const GLOBAL_CONFIG = {
     SELECTED_STRATEGY: 'SIGNAL_STRATEGY',
     /**
      * Flag which enables the automatic claim of bet winnings after each bet won
-     * @default false
+     * @default true
      * @type {boolean}
      */
     CLAIM_REWARDS: true,
     /**
      * Flag which enables the simulation mode of bot. The bot in simulated mode does not make any transactions towards the smart contracts, 
      * the calculation of the profits/win/loss is performed with a fake balance.
-     * @default false
+     * @default true
      * @type {boolean}
      */ 
     SIMULATION_MODE: true,
@@ -38,15 +38,21 @@ const GLOBAL_CONFIG = {
      */ 
     SIMULATION_BALANCE: 50, // in Crypto
     /**
-     * Time after execute bet strategy when start a new round.
-     * @default 265000 (4.3 Minutes)
+     * Calculate the gas fee in simulation mode use this params for estimate gas functions (betBull, betBear, claim)
+     * @default 90000
      * @type {number}
      */ 
-    WAITING_TIME: 265000, // in Miliseconds (4.3 Minutes)
+    SIMULATE_ESTIMATE_GAS: 90000, // Based on 0.5 USD value amount
+    /**
+     * Time after execute bet strategy when start a new round.
+     * @default 265000 in Miliseconds (4.3 Minutes)
+     * @type {number}
+     */ 
+    WAITING_TIME: 265000, 
     BET_CONFIGURATION: {
-        BET_AMOUNT: 10, // in USD
-        DAILY_GOAL: 50, // in USD
-        STOP_LOSS: 50 // in USD
+        BET_AMOUNT: 1, // in USD
+        DAILY_GOAL: 10, // in USD
+        STOP_LOSS: 7 // in USD
     },
     STRATEGY_CONFIGURATION: {    
         SIGNAL_STRATEGY: {           

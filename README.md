@@ -5,19 +5,19 @@
 
 ## ✔️ Features 
 
- - [✔️] Auto collect winnings
- - [✔️] Show real time profit 
- - [✔️] Show real time win rate 
- - [✔️] Daily goal profit 
- - [✔️] Improved algorithm 🔥
- - [✔️] AI Driven bot 🔥
- - [✔️] Stop Loss
- - [✔️] CAKE-UDST and BNB-USDT game 🔥
- - [✔️] Copy Trading Strategy (copy address betting)
- - [✔️] Quote Trading Strategy (lowest or highest)
- - [✔️] Simulation Mode (use fake balance)
- - [✔️] Simplify settings 
- - [ ] Gas fees calculate on algorithm
+  [✔️] CAKE-UDST and BNB-USDT game 🔥
+  [✔️] Simulation Mode (use fake balance) 🔥
+  [✔️] Auto collect winnings 🔥
+  [✔️] Copy Trading Strategy (copy address betting) 🔥
+  [✔️] Quote Trading Strategy (lowest or highest) 🔥
+  [✔️] Simplify settings 🔥
+  [✔️] Gas fees calculate on algorithm 🔥
+  [✔️] Show real time profit 
+  [✔️] Show real time win rate 
+  [✔️] Daily goal profit
+  [✔️] Stop Loss
+  [✔️] Improved algorithm 2.0 (bug fix)
+  [✔️] AI Driven bot
 
 ## ⭐Please consider giving a **star**.
 
@@ -110,24 +110,69 @@ Then run the following commands in terminal:
 1. Open the **.env** file with any code/text editor and add your private key like so:
 ```
 PERSONAL_WALLET_PRIVATE_KEY = YOUR_PRIVATE_KEY_HERE
+PERSONAL_WALLET_ADDRESS = YOUR_WALLET_ADDRESS
 BSC_NODE_PROVIDER_URL = NODE_BSC_URL // Example of BSC node provider (https://www.quicknode.com/)
 
 ```
 3. Open the **bot-configuration.js** file and setup the following variables:
 ```
 const GLOBAL_CONFIG = {
+    /**
+     * Defines the type of Prediction Game used by the bot (BNB-USDT or CAKE-USDT)
+     * @values BNB | CAKE
+     * @mandatory
+     * @default BNB
+     * @type {string}
+     */
+    PCS_CRYPTO_SELECTED: 'BNB',
+     /**
+     * Defines the type of betting strategy used by the bot
+     * - SIGNAL_STRATEGY: get trading signals from TradingViewScan and use recommended signal for UP or DOWN prediction
+     * - QUOTE_STRATEGY: chose the lower or the highiest quote from PCS smart-contract payout quote for UP or DOWN prediction
+     * - COPY_TRADING_STRATEGY: copy an address bet operations (Bet Bull or Bet Bear) on PCS game prediction
+     * @values SIGNAL_STRATEGY | QUOTE_STRATEGY | COPY_TRADING_STRATEGY
+     * @mandatory
+     * @default SIGNAL_STRATEGY
+     * @type {string}
+     */
+    SELECTED_STRATEGY: 'SIGNAL_STRATEGY',
+    /**
+     * Flag which enables the automatic claim of bet winnings after each bet won
+     * @default false
+     * @type {boolean}
+     */
+    CLAIM_REWARDS: true,
+    /**
+     * Flag which enables the simulation mode of bot. The bot in simulated mode does not make any transactions towards the smart contracts, 
+     * the calculation of the profits/win/loss is performed with a fake balance.
+     * @default false
+     * @type {boolean}
+     */ 
+    SIMULATION_MODE: true,
+    /**
+     * Fake balance used in simulation mode (in Crypto)
+     * @default 50
+     * @type {number}
+     */ 
+    SIMULATION_BALANCE: 50, // in Crypto
+    /**
+     * Calculate the gas fee in simulation mode use this params for estimate gas functions (betBull, betBear, claim)
+     * @default 90000
+     * @type {number}
+     */ 
+    SIMULATE_ESTIMATE_GAS: 90000, // Based on 0.5 USD value amount
+    /**
+     * Time after execute bet strategy when start a new round.
+     * @default 265000 in Miliseconds (4.3 Minutes)
+     * @type {number}
+     */ 
+    WAITING_TIME: 265000, 
     BET_CONFIGURATION: {
-        BET_AMOUNT_BNB: 0.001, // in BNB
-        BET_AMOUNT_CAKE: 0.001, // in Cake
-        DAILY_GOAL: 30, // in USD
-        STOP_LOSS: 5 // in USD
+        BET_AMOUNT: 5, // in USD
+        DAILY_GOAL: 50, // in USD
+        STOP_LOSS: 50 // in USD
     },
-    STRATEGY_CONFIGURATION: {  
-        CLAIM_REWARDS: true, // Auto claim the rewards 
-        SIMULATION_MODE: true, // In simulation mode the Bot its running without excute real transaction
-        SIMULATION_BALANCE: 1000, // In simulation mode use this balance (Crypto)
-        WAITING_TIME: 265000, // in Miliseconds (4.3 Minutes)
-        SELECTED_STRATEGY: 'QUOTE_STRATEGY', // "SIGNAL_STRATEGY" or "QUOTE_STRATEGY" or "COPY_TRADING_STRATEGY"
+    STRATEGY_CONFIGURATION: {    
         SIGNAL_STRATEGY: {           
             THRESHOLD: 55, // Minimum % of certainty of signals (50 - 100)
             DATASOURCE: "BINANCE" // Datasoure of the trading signals
@@ -144,8 +189,7 @@ const GLOBAL_CONFIG = {
 ```
 4. Start the bot using `npm` or `yarn`
 
-  - `npm run bnb-bot` start trading bot on BNBUDS PancakeSwap Prediction Game
-  - `npm run cake-bot` start trading bot on CAKEUSD PancakeSwap Prediction Game
+  - `npm run pcs-bot` start betting bot on PancakeSwap Prediction Game
 
 5. 🔮 Enjoy!
 
@@ -161,20 +205,19 @@ A lot of wallets don't provide you the private key, but just the **seed phrase**
 - Inside **bot-configuration.js** in the ``THRESHOLD`` property of ``GLOBAL_CONFIG`` variable, you can configure the minimum certainty with which the bot will bet. For default it's set to 50, which means that from 50% certainty the bot will bet. You can raise it (50-100) to bet only when the bot is more sure about its prediction.
 - Its recomendable to have x10 - x50 the amount of bet to have an average of rounds.
 
-## 🤖📈 Quote Strategy (QUOTE_STRATEGY)
-- The bot take a series of recomendations given by Trading View and proccess them together with the tendency of the rest of people betting. After the algorithm have complete, it choose to bet **🟢UP** or **🔴DOWN**.
+## ↕️ 📈 Quote Strategy (QUOTE_STRATEGY)
+- The bot fetches the data of the current round and selects the lowest or highest odds depending on the selected configuration, it choose to bet **🟢UP** or **🔴DOWN**.
+- Inside **bot-configuration.js** in the ``SELECT_LOWER_QUOTE`` property of ``GLOBAL_CONFIG``.
 - Before every round the bot will check if you have enough balance in your wallet and if you have reached the daily goal.
 - Also it will save the daily history in the **/bot-history** directory.
-- Be aware that after consecutive losses, statistically you have more chances to win in the next one.
-- Inside **bot-configuration.js** in the ``THRESHOLD`` property of ``GLOBAL_CONFIG`` variable, you can configure the minimum certainty with which the bot will bet. For default it's set to 50, which means that from 50% certainty the bot will bet. You can raise it (50-100) to bet only when the bot is more sure about its prediction.
+- Compared to the signal strategy it is less secure because the odds are very variable.
+- Its recommended to set the ``WAITING_TIME`` property of ``GLOBAL_CONFIG`` closest to the end of the round (4,3 min or 4,4 min), to have the most up-to-date odds possible..
 - Its recomendable to have x10 - x50 the amount of bet to have an average of rounds.
 
-## 🤖📈 Copy Trading Strategy (COPY_TRADING_STRATEGY)
-- The bot take a series of recomendations given by Trading View and proccess them together with the tendency of the rest of people betting. After the algorithm have complete, it choose to bet **🟢UP** or **🔴DOWN**.
+## 🦜 📈 Copy Trading Strategy (COPY_TRADING_STRATEGY)
+- The bot registers for the round and after validation checks on: Stop Loss, Take Profit and Balance. It waits for the "BetBull" **🟢UP** or "BetBear" **🔴DOWN** operations of the wallet configured in **bot-configuration.js** in the ``WALLET_ADDRESS_TO_EMULATE`` property of ``GLOBAL_CONFIG`` variable. And the bot makes the same bet!
 - Before every round the bot will check if you have enough balance in your wallet and if you have reached the daily goal.
 - Also it will save the daily history in the **/bot-history** directory.
-- Be aware that after consecutive losses, statistically you have more chances to win in the next one.
-- Inside **bot-configuration.js** in the ``THRESHOLD`` property of ``GLOBAL_CONFIG`` variable, you can configure the minimum certainty with which the bot will bet. For default it's set to 50, which means that from 50% certainty the bot will bet. You can raise it (50-100) to bet only when the bot is more sure about its prediction.
 - Its recomendable to have x10 - x50 the amount of bet to have an average of rounds.
 
 💰You can check the history of rounds and claim rewards here: https://pancakeswap.finance/prediction
@@ -184,4 +227,4 @@ A lot of wallets don't provide you the private key, but just the **seed phrase**
 **Please be aware of clones**
 
  👷**Use it at your own risk.** 
- If you are going to bet, please do it with money that you are willing to lose. And please try to bet with a low amount to gradually generate profit.
+ If you are going to bet, please do it with money that you are willing to lose. And please try to bet with a low amount to gradually generate profit. Use the simulation mode if you dont have enough money and try all the stregies!

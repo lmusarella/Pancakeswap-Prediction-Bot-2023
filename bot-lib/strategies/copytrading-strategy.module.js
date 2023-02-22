@@ -1,3 +1,7 @@
+/**
+ * @Module 
+ * @author luca.musarella
+ */
 const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
 const { BET_DOWN, BET_UP, COPY_TRADING_STRATEGY } = require("../common/constants/bot.constants");
 const { betDownStrategy, betUpStrategy } = require("./bet-strategy.module");

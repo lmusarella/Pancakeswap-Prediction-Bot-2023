@@ -1,10 +1,14 @@
-const { getCrypto, getCryptoUsdPrice, parseFromUsdToCrypto, parseFromCryptoToUsd, fixedFloatNumber } = require("./utils.module");
-const {GLOBAL_CONFIG} = require("../../bot-configuration/bot-configuration");
-const { BET_UP, USD_DECIMAL, CRYPTO_DECIMAL, COPY_TRADING_STRATEGY } = require("./constants/bot.constants");
+/**
+ * @Module 
+ * @author luca.musarella
+ */
+const { getCrypto, getCryptoUsdPrice, parseFromUsdToCrypto, parseFromCryptoToUsd, fixedFloatNumber, formatUnit } = require("./utils.module");
+const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
+const { BET_UP, USD_DECIMAL, CRYPTO_DECIMAL, COPY_TRADING_STRATEGY, START_ROUND_WAITING_TIME } = require("./constants/bot.constants");
 
 const BET_CONFIG = GLOBAL_CONFIG.BET_CONFIGURATION;
 
-const LOG_SECTION_SEPARATOR=`====================================================================`;
+const LOG_SECTION_SEPARATOR = `====================================================================`;
 const LOG_SUB_SECTION_SEPARATOR = `- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - `;
 const SPACE = ' ';
 
@@ -62,56 +66,56 @@ const printWelcomeMessage = () => {
 }
 
 const printGlobalSettings = () => {
-    console.log("⚙️ ","GLOBAL SETTINGS");
+    console.log("⚙️ ", "GLOBAL SETTINGS");
     printSubSectionSeparator();
-    console.log(SPACE,`▫️ Bot Strategy:`, GLOBAL_CONFIG.SELECTED_STRATEGY);
-    if(GLOBAL_CONFIG.SELECTED_STRATEGY === COPY_TRADING_STRATEGY) {
-        console.log(SPACE,`▫️ Copy Target Address:`, GLOBAL_CONFIG.STRATEGY_CONFIGURATION.COPY_TRADING_STRATEGY.WALLET_ADDRESS_TO_EMULATE);
+    console.log(SPACE, `▫️ Bot Strategy:`, GLOBAL_CONFIG.SELECTED_STRATEGY);
+    if (GLOBAL_CONFIG.SELECTED_STRATEGY === COPY_TRADING_STRATEGY) {
+        console.log(SPACE, `▫️ Copy Target Address:`, GLOBAL_CONFIG.STRATEGY_CONFIGURATION.COPY_TRADING_STRATEGY.WALLET_ADDRESS_TO_EMULATE);
     }
-    console.log(SPACE,`▫️ Simulation Mode:`, GLOBAL_CONFIG.SIMULATION_MODE ? '✔️' : '❌');
-    console.log(SPACE,`▫️ Auto Claim:`, GLOBAL_CONFIG.CLAIM_REWARDS ? '✔️' : '❌' );
+    console.log(SPACE, `▫️ Simulation Mode:`, GLOBAL_CONFIG.SIMULATION_MODE ? '✔️' : '❌');
+    console.log(SPACE, `▫️ Auto Claim:`, GLOBAL_CONFIG.CLAIM_REWARDS || GLOBAL_CONFIG.SIMULATION_MODE ? '✔️' : '❌');
     printSubSectionSeparator();
-    console.log(SPACE,`▫️ Bet Amount:`, BET_CONFIG.BET_AMOUNT, 'USD =', parseFromUsdToCrypto(BET_CONFIG.BET_AMOUNT), getCrypto());
-    console.log(SPACE,`▫️ Daily Goal:`, BET_CONFIG.DAILY_GOAL, 'USD =', parseFromUsdToCrypto(BET_CONFIG.DAILY_GOAL), getCrypto());
-    console.log(SPACE,`▫️ Stop Loss:`, BET_CONFIG.STOP_LOSS, 'USD =', parseFromUsdToCrypto(BET_CONFIG.STOP_LOSS), getCrypto());
+    console.log(SPACE, `▫️ Bet Amount:`, BET_CONFIG.BET_AMOUNT, 'USD =', parseFromUsdToCrypto(BET_CONFIG.BET_AMOUNT), getCrypto());
+    console.log(SPACE, `▫️ Daily Goal:`, BET_CONFIG.DAILY_GOAL, 'USD =', parseFromUsdToCrypto(BET_CONFIG.DAILY_GOAL), getCrypto());
+    console.log(SPACE, `▫️ Stop Loss:`, BET_CONFIG.STOP_LOSS, 'USD =', parseFromUsdToCrypto(BET_CONFIG.STOP_LOSS), getCrypto());
     printSectionSeparator();
 }
 
 const printWalletInfo = (balance) => {
     console.log("💻", "WALLET");
     printSubSectionSeparator();
-    console.log(SPACE,`▫️ Address:`, process.env.PERSONAL_WALLET_ADDRESS);
-    console.log(SPACE,`▫️ Balance:`, parseFromCryptoToUsd(balance), 'USD =', balance, getCrypto());
+    console.log(SPACE, `▫️ Address:`, process.env.PERSONAL_WALLET_ADDRESS);
+    console.log(SPACE, `▫️ Balance:`, parseFromCryptoToUsd(balance), 'USD =', balance, getCrypto());
     printSectionSeparator();
 }
 
 const printStartRoundEvent = (startRoundEvent, pendingRounds) => {
-    console.log("⚔️",SPACE, "ROUND:", startRoundEvent.id,"|", getConsoleTime() ,"| START 🎉");
-    printSubSectionSeparator();  
-    console.log(SPACE,startRoundEvent.validProfit ? '✔️ ': '❌', `Check Profit:`, startRoundEvent.actualProfit, 'USD =', parseFromUsdToCrypto(startRoundEvent.actualProfit), getCrypto())
-    console.log(SPACE, startRoundEvent.validBalance ? '✔️ ': '❌', `Check Balance:`, parseFromCryptoToUsd(startRoundEvent.actualBalance), 'USD =', startRoundEvent.actualBalance, getCrypto());
-    if(startRoundEvent.errors.length) {
+    console.log("⚔️", SPACE, "ROUND:", startRoundEvent.id, "|", getConsoleTime(), "| START 🎉");
+    printSubSectionSeparator();
+    console.log(SPACE, startRoundEvent.validProfit ? '✔️ ' : '❌', `Check Profit:`, fixedFloatNumber(startRoundEvent.actualProfit, USD_DECIMAL), 'USD =', parseFromUsdToCrypto(startRoundEvent.actualProfit), getCrypto())
+    console.log(SPACE, startRoundEvent.validBalance ? '✔️ ' : '❌', `Check Balance:`, parseFromCryptoToUsd(startRoundEvent.actualBalance), 'USD =', fixedFloatNumber(startRoundEvent.actualBalance, CRYPTO_DECIMAL), getCrypto());
+    if (startRoundEvent.errors.length) {
         startRoundEvent.errors.forEach(err => {
-            console.log(SPACE,"⛔", err);
+            console.log(SPACE, "⛔", err);
         });
     } else {
-        console.log(SPACE, "⏰", `Waiting ${(GLOBAL_CONFIG.WAITING_TIME / 60000).toFixed(1)} minutes before execute strategy`);
-    }  
+        console.log(SPACE, "⏰", `Waiting ${((GLOBAL_CONFIG.WAITING_TIME - START_ROUND_WAITING_TIME) / 60000).toFixed(1)} minutes before execute strategy`);
+    }
     printSectionSeparator();
-    if(startRoundEvent.skipRound) {    
+    if (startRoundEvent.skipRound) {
         console.log("🚨", "Bot is stopping! Waiting pending rounds:", Array.from(pendingRounds.values()).map(round => round.id));
         printSectionSeparator();
     }
 }
 
 const printBetRoundEvent = (betRoundEvent) => {
-    console.log("⚔️",SPACE,"ROUND:", betRoundEvent.id,"|", getConsoleTime() ,"| BET 🎲");
+    console.log("⚔️", SPACE, "ROUND:", betRoundEvent.id, "|", getConsoleTime(), "| BET 🎲");
     printSubSectionSeparator();
-    if(betRoundEvent.skipRound){
+    if (betRoundEvent.skipRound) {
         console.log(SPACE, `♻️  Skip: ${betRoundEvent.message}`);
     } else {
         console.log(SPACE, betRoundEvent.message);
-        if(!betRoundEvent.betExecuted) {
+        if (!betRoundEvent.betExecuted) {
             console.log(SPACE, `⛔ Bet not executed! Transaction Error!`);
         } else {
             console.log(SPACE, "✔️  Successful bet", betRoundEvent.betAmount, "USD =", parseFromUsdToCrypto(betRoundEvent.betAmount), getCrypto(), "to", betRoundEvent.bet === BET_UP ? `UP 🟢` : `DOWN 🔴`);
@@ -121,30 +125,39 @@ const printBetRoundEvent = (betRoundEvent) => {
 }
 
 const printEndRoundEvent = (endRoundEvent) => {
-    console.log("⚔️",SPACE,"ROUND:",endRoundEvent.id,"|", getConsoleTime(), "| END 🏁");
+    console.log("⚔️", SPACE, "ROUND:", endRoundEvent.id, "|", getConsoleTime(), "| END 🏁");
     printSubSectionSeparator();
-    if(endRoundEvent.betTransactionError){
-        console.log(SPACE, "⛔ Bet Transaction Error", );
+    if (endRoundEvent.betTransactionError) {
+        console.log(SPACE, "⛔ Bet Transaction Error",);
     } else {
         console.log(SPACE, endRoundEvent.roundWon ? '👍 Won:' : '👎 Lost:', parseFromCryptoToUsd(endRoundEvent.roundProfit, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.roundProfit, CRYPTO_DECIMAL), getCrypto());
     }
-    console.log(SPACE, endRoundEvent.isClaimable && endRoundEvent.claimExecuted ? '✔️  Rewards Claimed' : endRoundEvent.claimExecuted === null ? '❌ Rewards Claimed' : '⛔ Claim Transaction Error');
+    const rewardClaimed = (GLOBAL_CONFIG.SIMULATION_MODE && endRoundEvent.roundWon) || (endRoundEvent.isClaimable && endRoundEvent.claimExecuted);
+    console.log(SPACE, rewardClaimed ? '✔️  Rewards Claimed' : endRoundEvent.claimExecuted === null ? '⛔ Claim Transaction Error' : '❌ Rewards Claimed');
+    console.log(SPACE, '⛽ Bet Tx Fee:', parseFromCryptoToUsd(endRoundEvent.betTxGasFee, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.betTxGasFee, CRYPTO_DECIMAL), getCrypto())
+    if(rewardClaimed) {
+        console.log(SPACE, '⛽ Claim Tx Fee:', parseFromCryptoToUsd(endRoundEvent.txClaimGasFee, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.txClaimGasFee, CRYPTO_DECIMAL), getCrypto())
+    }
+
     printSectionSeparator();
 }
 
 const printStatistics = (statistics, roundInPending) => {
     const betPending = roundInPending ? Array.from(roundInPending.values()).length : 0;
-    console.log(`📊 | BETTING STATISTICS [`,`✔️  Executed`, statistics.win + statistics.loss,`| ⏳ Pending`, betPending, `| ⛔ Errors`, statistics.betErrors, "]");
+    console.log(`📊 BETTING STATISTICS [`, `✔️  Executed`, statistics.win + statistics.loss, `| ⏳ Pending`, betPending, `| ⛔ Errors`, statistics.betErrors, "]");
     printSubSectionSeparator();
-    console.log(SPACE,`🍀 Fortune: ${fixedFloatNumber(statistics.percentage, USD_DECIMAL)} %`);
-    console.log(SPACE,`👍 ${statistics.win}|${statistics.loss} 👎 `);
-    console.log(SPACE,`💰 Profit:`, fixedFloatNumber(statistics.profit_usd, USD_DECIMAL), `USD =`, fixedFloatNumber(statistics.profit_crypto, CRYPTO_DECIMAL), getCrypto());
+    console.log(SPACE, `🍀 Fortune: ${fixedFloatNumber(statistics.percentage, USD_DECIMAL)} %`);
+    console.log(SPACE, `👍 ${statistics.win}|${statistics.loss} 👎 `);
+    console.log(SPACE, `💰 Profit:`, statistics.profit_usd, `USD =`, fixedFloatNumber(statistics.profit_crypto, CRYPTO_DECIMAL), getCrypto(), '(fees excluded)');
+    console.log(SPACE, `⛽ Total Fees:`, statistics.totalTxGasFeeUsd, `USD =`, fixedFloatNumber(statistics.totalTxGasFee, CRYPTO_DECIMAL), getCrypto());
     printSectionSeparator();
-  }
+}
 
-const printTransactionError = (error, epoch) => {
+const printTransactionError = (exeption, epoch) => {
+    const exeptionBody = JSON.parse(exeption.error.body);
+    const errorMessage = exeptionBody.error.message;
     printSectionSeparator();
-    console.log(`⛔ Round [${epoch.toString()}] Transactions Error: ${error.toString()}`);
+    console.log("⛔ Transaction Error [", formatUnit(epoch),`][ ${exeption.code} ] =>`, errorMessage);
     printSectionSeparator();
 }
 

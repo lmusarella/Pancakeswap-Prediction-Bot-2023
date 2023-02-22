@@ -4,7 +4,7 @@
  */
 const { ethers } = require('ethers');
 const dotenv = require('dotenv');
-const { formatEther } = require('../common/utils.module');
+const { formatEther, formatUnit } = require('../common/utils.module');
 const { GLOBAL_CONFIG } = require('../../bot-configuration/bot-configuration');
 
 const result = dotenv.config();
@@ -30,7 +30,16 @@ const SIMULATION = {
  * @returns {number} BNB wallet balance
  */
 const getBNBBalance = async () => {
-    return parseFloat(formatEther(await signer.getBalance()));
+  return parseFloat(formatEther(await signer.getBalance()));
+}
+
+/**
+ * Get your gas price of BSC chain
+ * @async
+ * @returns {number} gas price
+ */
+const getGasPrice = async () => {
+  return formatUnit(await provider.getGasPrice());
 }
 
 const updateSimulationBalance = (balance) => {
@@ -42,10 +51,11 @@ const getSimulationBalance = () => {
 }
 
 module.exports = {
-    wallet,
-    provider,
-    signer,
-    getBNBBalance,
-    getSimulationBalance,
-    updateSimulationBalance
+  wallet,
+  provider,
+  signer,
+  getBNBBalance,
+  getGasPrice,
+  getSimulationBalance,
+  updateSimulationBalance
 };

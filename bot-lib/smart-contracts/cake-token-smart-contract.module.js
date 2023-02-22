@@ -2,10 +2,10 @@
  * @Module 
  * @author luca.musarella
  */
-const {ethers} = require('ethers');
-const {signer} = require('../wallet/wallet.module');
-const {CAKE_TOKEN_SMARTCONTRACT_ADDRESS} = require("../common/constants/smart-contract.constants");
-const {formatEther} = require('../common/utils.module');
+const { ethers } = require('ethers');
+const { signer } = require('../wallet/wallet.module');
+const { CAKE_TOKEN_SMARTCONTRACT_ADDRESS } = require("../common/constants/smart-contract.constants");
+const { formatEther } = require('../common/utils.module');
 const cakeTokenAbi = require("./json_abi/cake_smartcontract_abi.json");
 
 //Set up cakeToken smart contract
