@@ -5,19 +5,19 @@
 
 ## ✔️ Features 
 
- - [✔️] CAKE-UDST and BNB-USDT game 🔥
- - [✔️] Simulation Mode (use fake balance) 🔥
- - [✔️] Auto collect winnings 🔥
- - [✔️] Copy Trading Strategy (copy address betting) 🔥
- - [✔️] Quote Trading Strategy (lowest or highest) 🔥
- - [✔️] Simplify settings 🔥
- - [✔️] Gas fees calculate on algorithm 🔥
- - [✔️] Show real time profit 
- - [✔️] Show real time win rate 
- - [✔️] Daily goal profit
- - [✔️] Stop Loss
- - [✔️] Improved algorithm 2.0 (bug fix)
- - [✔️] AI Driven bot
+ - [x] CAKE-UDST and BNB-USDT game 🔥
+ - [x] Simulation Mode (use fake balance) 🔥
+ - [x] Auto collect winnings 🔥
+ - [x] Copy Trading Strategy (copy address betting) 🔥
+ - [x] Quote Trading Strategy (lowest or highest) 🔥
+ - [x] Simplify settings 🔥
+ - [x] Gas fees calculate on algorithm 🔥
+ - [x] Show real time profit 
+ - [x] Show real time win rate 
+ - [x] Daily goal profit
+ - [x] Stop Loss
+ - [x] Improved algorithm 2.0 (bug fix)
+ - [x] AI Driven bot
 
 ## ⭐Please consider giving a **star**.
 
