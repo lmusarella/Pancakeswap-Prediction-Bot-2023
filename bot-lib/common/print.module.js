@@ -136,7 +136,7 @@ const printEndRoundEvent = (endRoundEvent) => {
     } else {
         console.log(SPACE, endRoundEvent.roundWon ? '👍 Won:' : '👎 Lost:', parseFromCryptoToUsd(endRoundEvent.roundProfit, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.roundProfit, CRYPTO_DECIMAL), getCrypto(), fixedFloatNumber(endRoundEvent.percentageProfit, USD_DECIMAL), '%');
     }
-    const rewardClaimed = (GLOBAL_CONFIG.SIMULATION_MODE && endRoundEvent.roundWon) || (endRoundEvent.isClaimable && endRoundEvent.claimExecuted);
+    const rewardClaimed = (GLOBAL_CONFIG.SIMULATION_MODE && endRoundEvent.roundWon) || (endRoundEvent.claimExecuted);
     console.log(SPACE, rewardClaimed ? '✔️  Rewards Claimed' : endRoundEvent.claimExecuted === null ? '⛔ Claim Transaction Error' : '❌ Rewards Claimed');
     console.log(SPACE, '⛽ Bet Tx Fee:', parseFeeFromCryptoToUsd(endRoundEvent.betTxGasFee, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.betTxGasFee, CRYPTO_DECIMAL), getFeeCrypto())
     if(rewardClaimed) {

@@ -8,7 +8,7 @@ const { writeOrUpdateFile, getFileJsonContent, percentageChange, getCrypto, pars
 
 const ROUND_HISTORY_FILENAME = `${getCrypto().toLowerCase()}-game/rounds-${getCrypto().toLowerCase()}-history`;
 const STATISTICS_FILENAME = `${getCrypto().toLowerCase()}-game/statistics-${getCrypto().toLowerCase()}-history`;
-const USERS_ROUNDS_FILENAME = `${getCrypto().toLowerCase()}-game/users-${getCrypto().toLowerCase()}-rounds`;
+const ROUNDS_USERS__FILENAME = `${getCrypto().toLowerCase()}-game/rounds-${getCrypto().toLowerCase()}-users`;
 const USERS_ACTIVITY_FILENAME = `${getCrypto().toLowerCase()}-game/users-${getCrypto().toLowerCase()}-activity`;
 
 const generateFilePath = (fileName) => {
@@ -19,8 +19,8 @@ const getFilePath = (fileName) => {
   return `./bot-history/${fileName}.json`;
 };
 
-const saveUsersRoundInHistory = async (usersData, forceUpdate) => {
-  const path = generateFilePath(USERS_ROUNDS_FILENAME);
+const saveRoundUsersInHistory = async (usersData, forceUpdate) => {
+  const path = generateFilePath(ROUNDS_USERS__FILENAME);
   return forceUpdate ? writeOrUpdateFile(path, usersData) : await saveRoundDataInHistory(path, usersData);
 };
 
@@ -63,7 +63,7 @@ const getUserActivityFromHistory = async () => {
   return userActivityHistory ? userActivityHistory : {};
 }
 
-const getUsersRoundFromHistory = async () => {
+const getRoundUsersFromHistory = async () => {
   const path = generateFilePath(USERS_ROUNDS_FILENAME);
   const usersRoundHistory = await getFileJsonContent(path);
   return usersRoundHistory;
@@ -132,8 +132,8 @@ module.exports = {
   generateFilePath,
   mergeRoundData,
   saveRoundInHistory,
-  saveUsersRoundInHistory,
-  getUsersRoundFromHistory,
+  saveRoundUsersInHistory,
+  getRoundUsersFromHistory,
   getRoundsFromHistory,
   saveStatisticsInHistory,
   getStatisticFromHistory,

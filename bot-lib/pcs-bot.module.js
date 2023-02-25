@@ -5,8 +5,8 @@
 const { GLOBAL_CONFIG } = require("../bot-configuration/bot-configuration");
 const { BET_UP, CRYPTO_DECIMAL, BNB_CRYPTO, CAKE_CRYPTO, SIGNAL_STRATEGY, QUOTE_STRATEGY, COPY_TRADING_STRATEGY } = require("./common/constants/bot.constants");
 const { fixedFloatNumber, parseFromUsdToCrypto, setCryptoUsdPrice, formatUnit, getCrypto, setCryptoFeeUsdPrice } = require('./common/utils.module');
-const { getRoundData, getMinBetAmount, getCurrentEpoch, setSmartContratConfig, isClaimableRound, claimRewards } = require('./smart-contracts/pcs-prediction-smart-contract.module');
-const { getStatisticFromHistory } = require('./history/history.module');
+const { getRoundData, getMinBetAmount, getCurrentEpoch, setSmartContratConfig } = require('./smart-contracts/pcs-prediction-smart-contract.module');
+const { getStatisticFromHistory, getRoundsFromHistory, mergeRoundData } = require('./history/history.module');
 const { getSimulationBalance, updateSimulationBalance, getBNBBalance } = require('./wallet/wallet.module');
 const { getBinancePrice } = require('./external-data/binance.module');
 const { printWelcomeMessage, printGlobalSettings, printWalletInfo, printSectionSeparator, printStopBotMessage, printInitBotMessage, printStartBotMessage } = require('./common/print.module');
@@ -14,6 +14,7 @@ const { executeStrategyWithSignals, isSignalStrategy } = require('./strategies/s
 const { isQuoteStrategy, executeStrategyWithQuotes } = require('./strategies/quote-strategy.module');
 const { executeBetUpCopyTradingStrategy, executeBetDownCopyTradingStrategy } = require('./strategies/copytrading-strategy.module');
 const { BINANCE_API_BNB_USDT_URL, BINANCE_API_CAKE_USDT_URL } = require("./common/constants/api.constants");
+const { claimStrategy } = require("./strategies/bet-strategy.module");
  
 const BET_CONFIG = GLOBAL_CONFIG.BET_CONFIGURATION;
 const STRATEGY_CONFIG = GLOBAL_CONFIG.STRATEGY_CONFIGURATION;
@@ -145,37 +146,37 @@ const getPersonalBalance = async () => {
   return fixedFloatNumber(balance, CRYPTO_DECIMAL);
 }
 
-const createEndRoundEvent = async (roundHistory, epoch) => {
-  const lastRoundIndex = roundHistory.findIndex(round => round.round === formatUnit(epoch));
-  const lastRound = roundHistory[lastRoundIndex];
+const getEndRoundData = async (epoch) => {
+  const endRoundData = await getRoundData(epoch);
+  const roundsHistoryData = await getRoundsFromHistory();
+  const mergedRoundsHistory = mergeRoundData(roundsHistoryData, [endRoundData]);
+  const lastRoundIndex = mergedRoundsHistory.findIndex(round => round.round === formatUnit(epoch));
+  return mergedRoundsHistory[lastRoundIndex];
+}
+
+const createEndRoundEvent = async (lastRound, epoch) => {
   const roundWon = lastRound.bet === lastRound.winner && lastRound.betExecuted;
   const betTransactionError = lastRound.bet && !lastRound.betExecuted;
-  const isClaimable = GLOBAL_CONFIG.CLAIM_REWARDS && roundWon && await isClaimableRound(epoch);
-  const bullPayout = lastRound.bullPayout;
-  const bearPayout = lastRound.bearPayout;
-  const percentageProfit = roundWon && lastRound.bet == BET_UP ? ((bullPayout - 1) * 100) : ((bearPayout - 1) * 100);
-  const betAmount = lastRound.betAmount;
-  const betTxGasFee = lastRound.txGasFee;
-  const claimTransaction = isClaimable ? await claimRewards([epoch]) : { status: 0, txGasFee: 0};
-  const txClaimGasFee = (GLOBAL_CONFIG.SIMULATION_MODE && roundWon) ? betTxGasFee : claimTransaction.txGasFee;
-  const roundEarning = roundWon && lastRound.bet == BET_UP ? (betAmount * bullPayout - betAmount) : (betAmount * bearPayout - betAmount);
-  lastRound.txClaimGasFee = txClaimGasFee;
+  const claimTransaction = await claimStrategy(epoch);
+  lastRound.txClaimGasFee = (GLOBAL_CONFIG.SIMULATION_MODE && roundWon) ? lastRound.txGasFee : claimTransaction.txGasFee;
+  const percentageProfit = roundWon && lastRound.bet == BET_UP ? ((lastRound.bullPayout - 1) * 100) : ((lastRound.bearPayout - 1) * 100);
+  const roundEarning = roundWon && lastRound.bet == BET_UP ? (lastRound.betAmount * lastRound.bullPayout - lastRound.betAmount) : (lastRound.betAmount * lastRound.bearPayout - lastRound.betAmount);
   return {
     id: formatUnit(epoch),
     roundWon: roundWon,
     betTransactionError: betTransactionError,
-    isClaimable: isClaimable,
     claimExecuted: claimTransaction.transactionExeption ? null : claimTransaction.status === 1,
-    roundProfit: roundWon ? roundEarning : -betAmount,
+    roundProfit: roundWon ? roundEarning : -lastRound.betAmount,
     percentageProfit: roundWon ? percentageProfit : -100,
-    betTxGasFee: betTxGasFee,
-    txClaimGasFee: txClaimGasFee
+    betTxGasFee: lastRound.txGasFee,
+    txClaimGasFee: lastRound.txClaimGasFee
   };
 }
 
 module.exports = {
   stopBotCommand,
   startBotCommand,
+  getEndRoundData,
   executeBetStrategy,
   executeBetUpStrategy,
   executeBetDownStrategy,
