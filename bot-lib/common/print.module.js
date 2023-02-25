@@ -61,8 +61,10 @@ const printStopBotMessage = () => {
 const printWelcomeMessage = () => {
     printEmptyRow();
     console.log(`🤗 WELCOME ON ${GLOBAL_CONFIG.PCS_CRYPTO_SELECTED}-USDT PREDICTION GAME BOT!`);
+    printEmptyRow();
     console.log( `(`, 1, getCrypto(), "=", getCryptoUsdPrice(), "USD )");
     if(getCrypto() != BNB_CRYPTO) {
+        printEmptyRow();
         console.log( `(`, 1, getFeeCrypto(), "=", getCryptoFeeUsdPrice(), "USD )");
     }
     printEmptyRow();
@@ -160,7 +162,6 @@ const printStatistics = (statistics, roundInPending) => {
 const printTransactionError = (exeption, epoch) => {
     const exeptionBody = JSON.parse(exeption.error.body);
     const errorMessage = exeptionBody.error.message;
-    printSectionSeparator();
     console.log("⛔ Transaction Error [", formatUnit(epoch),`][ ${exeption.code} ] =>`, errorMessage);
     printSectionSeparator();
 }

@@ -5,8 +5,8 @@
  */
 const { GLOBAL_CONFIG } = require("../bot-configuration/bot-configuration");
 const { EVENTS } = require("../bot-lib/common/constants/smart-contract.constants");
-const { saveRoundInHistory, saveStatisticsInHistory, getRoundsFromHistory, mergeRoundData } = require('../bot-lib/history/history.module');
-const { getSmartContract, getRoundData } = require('../bot-lib/smart-contracts/pcs-prediction-smart-contract.module');
+const { saveRoundInHistory, saveStatisticsInHistory } = require('../bot-lib/history/history.module');
+const { getSmartContract } = require('../bot-lib/smart-contracts/pcs-prediction-smart-contract.module');
 const { stopBotCommand, startBotCommand, executeBetStrategy, createStartRoundEvent, createEndRoundEvent, executeBetUpStrategy, executeBetDownStrategy, getEndRoundData } = require('../bot-lib/pcs-bot.module');
 const { formatEther, getCrypto, updateCryptoUsdPriceFromSmartContract, formatUnit, parseFromCryptoToUsd, fixedFloatNumber, setCryptoFeeUsdPrice } = require('../bot-lib/common/utils.module');
 const { updateSimulationBalance } = require("../bot-lib/wallet/wallet.module");
