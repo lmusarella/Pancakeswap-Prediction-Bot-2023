@@ -98,10 +98,10 @@ getSmartContract().on(EVENTS.BET_BULL_EVENT, async (sender, epoch, betAmount) =>
 });
 
 //Listener on "LockRound" event from {@PredictionGameSmartContract}
-getSmartContract().on(EVENTS.LOCK_ROUND, async (epoch, _roundId, price) => {
+getSmartContract().on(EVENTS.LOCK_ROUND, async (epoch, _roundId) => {
   const round = formatUnit(epoch);
   if (pendingRoundEventStack.get(round)) {
-    await handleUsersActivity(round, price);
+    await handleUsersActivity(round);
     if (isCopyTradingStrategy()) {
       const roundEvent = pendingRoundEventStack.get(round);
       if (roundEvent && !roundEvent.bet) {
