@@ -105,7 +105,7 @@ getSmartContract().on(EVENTS.LOCK_ROUND, async (epoch, _roundId, price) => {
     if (isCopyTradingStrategy()) {
       const roundEvent = pendingRoundEventStack.get(round);
       if (roundEvent && !roundEvent.bet) {
-        console.log(`🥺 Round [`, round, `] Sorry your friend ${COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE} didn't bet!`);
+        console.log(`🥺 Round [`, round, `] Sorry your friend`, [COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE], `didn't bet!`);
         printSectionSeparator();
         await getMostActiveUser();
       }
