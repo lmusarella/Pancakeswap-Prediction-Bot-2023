@@ -4,67 +4,88 @@
  */
 const _ = require("lodash");
 const { BET_UP } = require("../common/constants/bot.constants");
-const { writeOrUpdateFile, getFileJsonContent, percentageChange, getCrypto, parseFromCryptoToUsd } = require('../common/utils.module');
+const { writeOrUpdateFile, getFileJsonContent, percentageChange, getCrypto, parseFromCryptoToUsd, parseFeeFromCryptoToUsd } = require('../common/utils.module');
 
-const ROUND_HISTORY_FILENAME = `rounds-${getCrypto().toLowerCase()}-history`;
-const STATISTICS_FILENAME = `statistics-${getCrypto().toLowerCase()}-history`;
+const ROUND_HISTORY_FILENAME = `${getCrypto().toLowerCase()}-game/rounds-${getCrypto().toLowerCase()}-history`;
+const STATISTICS_FILENAME = `${getCrypto().toLowerCase()}-game/statistics-${getCrypto().toLowerCase()}-history`;
+const USERS_ROUNDS_FILENAME = `${getCrypto().toLowerCase()}-game/users-${getCrypto().toLowerCase()}-rounds`;
+const USERS_ACTIVITY_FILENAME = `${getCrypto().toLowerCase()}-game/users-${getCrypto().toLowerCase()}-activity`;
 
 const generateFilePath = (fileName) => {
-  const date = new Date();
-  const day = date.getDate();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return getFilePath(`${year}${month}${day}-${fileName}`);
+  return getFilePath(`${fileName}`);
 };
 
 const getFilePath = (fileName) => {
   return `./bot-history/${fileName}.json`;
 };
 
-const saveRoundInHistory = async (roundData, forceUpdate) => {
-  const path = generateFilePath(ROUND_HISTORY_FILENAME);
-  const roundsHistoryParsed = await getFileJsonContent(path);
-  if (roundsHistoryParsed && !forceUpdate) {
-    let mergedRoundsHistory;
+const saveUsersRoundInHistory = async (usersData, forceUpdate) => {
+  const path = generateFilePath(USERS_ROUNDS_FILENAME);
+  return forceUpdate ? writeOrUpdateFile(path, usersData) : await saveRoundDataInHistory(path, usersData);
+};
+
+const saveRoundDataInHistory = async (path, newData) => {
+  const data = await getFileJsonContent(path);
+  if (data) {
+    let mergedData;
     try {
-      mergedRoundsHistory = mergeRoundHistory(roundsHistoryParsed, [roundData]);
+      mergedData = mergeRoundData(data, newData);
     } catch (e) {
       console.log(e);
       return;
     }
-    writeOrUpdateFile(path, mergedRoundsHistory);
-    return mergedRoundsHistory;
+    return writeOrUpdateFile(path, mergedData);
   } else {
-    forceUpdate ? writeOrUpdateFile(path, roundData) : writeOrUpdateFile(path, [roundData]);
-    return roundData;
+    return writeOrUpdateFile(path, newData);
   }
+}
+
+const saveRoundInHistory = async (roundData, forceUpdate) => {
+  const path = generateFilePath(ROUND_HISTORY_FILENAME);
+  return forceUpdate ? writeOrUpdateFile(path, roundData) : await saveRoundDataInHistory(path, roundData)
 };
 
 const getRoundsFromHistory = async () => {
   const path = generateFilePath(ROUND_HISTORY_FILENAME);
-  const roundsHistoryParsed = await getFileJsonContent(path);
-  return roundsHistoryParsed;
+  const roundsHistory = await getFileJsonContent(path);
+  return roundsHistory;
 }
 
 const getStatisticFromHistory = async () => {
   const path = generateFilePath(STATISTICS_FILENAME);
-  const statisticsHistoryParsed = await getFileJsonContent(path);
-  return statisticsHistoryParsed;
+  const statisticsHistory = await getFileJsonContent(path);
+  return statisticsHistory;
 }
+
+const getUserActivityFromHistory = async () => {
+  const path = generateFilePath(USERS_ACTIVITY_FILENAME);
+  const userActivityHistory = await getFileJsonContent(path);
+  return userActivityHistory ? userActivityHistory : {};
+}
+
+const getUsersRoundFromHistory = async () => {
+  const path = generateFilePath(USERS_ROUNDS_FILENAME);
+  const usersRoundHistory = await getFileJsonContent(path);
+  return usersRoundHistory;
+}
+
+const saveUserActivityInHistory = (userActivity) => {
+  const path = generateFilePath(USERS_ACTIVITY_FILENAME);
+  return writeOrUpdateFile(path, userActivity);
+};
 
 const saveStatisticsInHistory = (roundHistoryData) => {
   const statisticsData = generateNewStatistics(roundHistoryData);
   const path = generateFilePath(STATISTICS_FILENAME);
-  writeOrUpdateFile(path, statisticsData);
-  return statisticsData;
+  return writeOrUpdateFile(path, statisticsData);
 };
 
-const mergeRoundHistory = (roundsHistoryParsed, roundData) => {
-  const mergedRoundsHistory = _.merge(
-    _.keyBy(roundsHistoryParsed, "round"),
-    _.keyBy(roundData, "round")
+const mergeRoundData = (roundsDataParsed, newRoundData) => {
+  const mergedRoundsData = _.merge(
+    _.keyBy(roundsDataParsed, "round"),
+    _.keyBy(newRoundData, "round")
   );
-  return _.values(mergedRoundsHistory);
+  return _.values(mergedRoundsData);
 }
 
 const generateNewStatistics = (roundHistoryData) => {
@@ -103,15 +124,19 @@ const generateNewStatistics = (roundHistoryData) => {
     loss: loss,
     betErrors: betErrorTransactions,
     totalTxGasFee: totalTxGasFee,
-    totalTxGasFeeUsd: parseFromCryptoToUsd(totalTxGasFee)
+    totalTxGasFeeUsd: parseFeeFromCryptoToUsd(totalTxGasFee)
   };
 }
 
 module.exports = {
   generateFilePath,
-  mergeRoundHistory,
+  mergeRoundData,
   saveRoundInHistory,
+  saveUsersRoundInHistory,
+  getUsersRoundFromHistory,
   getRoundsFromHistory,
   saveStatisticsInHistory,
-  getStatisticFromHistory
+  getStatisticFromHistory,
+  saveUserActivityInHistory,
+  getUserActivityFromHistory
 };

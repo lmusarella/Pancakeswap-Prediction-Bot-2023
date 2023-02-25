@@ -17,7 +17,7 @@ const GLOBAL_CONFIG = {
      * @default SIGNAL_STRATEGY
      * @type {string}
      */
-    SELECTED_STRATEGY: 'SIGNAL_STRATEGY',
+    SELECTED_STRATEGY: 'COPY_TRADING_STRATEGY',
     /**
      * Flag which enables the automatic claim of bet winnings after each bet won
      * @default true
@@ -32,11 +32,11 @@ const GLOBAL_CONFIG = {
      */ 
     SIMULATION_MODE: true,
     /**
-     * Fake balance used in simulation mode (in Crypto)
+     * Fake balance used in simulation mode
      * @default 50
      * @type {number}
      */ 
-    SIMULATION_BALANCE: 50, // in Crypto
+    SIMULATION_BALANCE: 25, // in USD
     /**
      * Calculate the gas fee in simulation mode use this params for estimate gas functions (betBull, betBear, claim)
      * @default 90000
@@ -50,7 +50,7 @@ const GLOBAL_CONFIG = {
      */ 
     WAITING_TIME: 265000, 
     BET_CONFIGURATION: {
-        BET_AMOUNT: 1, // in USD
+        BET_AMOUNT: 2, // in USD
         DAILY_GOAL: 10, // in USD
         STOP_LOSS: 7 // in USD
     },

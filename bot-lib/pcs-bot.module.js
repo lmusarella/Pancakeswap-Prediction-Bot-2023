@@ -4,7 +4,7 @@
  */
 const { GLOBAL_CONFIG } = require("../bot-configuration/bot-configuration");
 const { BET_UP, CRYPTO_DECIMAL, BNB_CRYPTO, CAKE_CRYPTO, SIGNAL_STRATEGY, QUOTE_STRATEGY, COPY_TRADING_STRATEGY } = require("./common/constants/bot.constants");
-const { fixedFloatNumber, parseFromUsdToCrypto, setCryptoUsdPrice, formatUnit, getCrypto } = require('./common/utils.module');
+const { fixedFloatNumber, parseFromUsdToCrypto, setCryptoUsdPrice, formatUnit, getCrypto, setCryptoFeeUsdPrice } = require('./common/utils.module');
 const { getRoundData, getMinBetAmount, getCurrentEpoch, setSmartContratConfig, isClaimableRound, claimRewards } = require('./smart-contracts/pcs-prediction-smart-contract.module');
 const { getStatisticFromHistory } = require('./history/history.module');
 const { getSimulationBalance, updateSimulationBalance, getBNBBalance } = require('./wallet/wallet.module');
@@ -13,6 +13,7 @@ const { printWelcomeMessage, printGlobalSettings, printWalletInfo, printSectionS
 const { executeStrategyWithSignals, isSignalStrategy } = require('./strategies/signals-strategy.module');
 const { isQuoteStrategy, executeStrategyWithQuotes } = require('./strategies/quote-strategy.module');
 const { executeBetUpCopyTradingStrategy, executeBetDownCopyTradingStrategy } = require('./strategies/copytrading-strategy.module');
+const { BINANCE_API_BNB_USDT_URL, BINANCE_API_CAKE_USDT_URL } = require("./common/constants/api.constants");
  
 const BET_CONFIG = GLOBAL_CONFIG.BET_CONFIGURATION;
 const STRATEGY_CONFIG = GLOBAL_CONFIG.STRATEGY_CONFIGURATION;
@@ -21,8 +22,11 @@ const initializeBotSettings = async () => {
   setSmartContratConfig(GLOBAL_CONFIG.PCS_CRYPTO_SELECTED);
   const currentEpoch = await getCurrentEpoch();
   const lastRoundData = await getRoundData(currentEpoch - 1);
+  const binanceFeeUsdPrice = await getBinancePrice(BINANCE_API_BNB_USDT_URL);
+  setCryptoFeeUsdPrice(binanceFeeUsdPrice);
   if (!lastRoundData.openPrice) {
-    const binanceUsdPrice = await getBinancePrice();
+    const crypto_api_url = getCrypto() === BNB_CRYPTO ? BINANCE_API_BNB_USDT_URL : BINANCE_API_CAKE_USDT_URL;
+    const binanceUsdPrice = await getBinancePrice(crypto_api_url);
     setCryptoUsdPrice(binanceUsdPrice);
   } else {
     setCryptoUsdPrice(lastRoundData.openPrice);
@@ -53,7 +57,7 @@ const startBotCommand = async () => {
   printGlobalSettings();
   const actualUsdProfit = await getActualUsdProfit();
   if (actualUsdProfit) {
-    updateSimulationBalance(GLOBAL_CONFIG.SIMULATION_BALANCE + parseFromUsdToCrypto(actualUsdProfit));
+    updateSimulationBalance(GLOBAL_CONFIG.SIMULATION_BALANCE + actualUsdProfit);
   }
   const balance = await getPersonalBalance();
   printWalletInfo(balance);
@@ -135,7 +139,7 @@ const getActualUsdProfit = async () => {
 
 const getPersonalBalance = async () => {
   if (GLOBAL_CONFIG.SIMULATION_MODE) {
-    return getSimulationBalance();
+    return parseFromUsdToCrypto(getSimulationBalance());
   }
   const balance = getCrypto() === BNB_CRYPTO ? await getBNBBalance() : await getCakeBalance();
   return fixedFloatNumber(balance, CRYPTO_DECIMAL);
@@ -149,6 +153,7 @@ const createEndRoundEvent = async (roundHistory, epoch) => {
   const isClaimable = GLOBAL_CONFIG.CLAIM_REWARDS && roundWon && await isClaimableRound(epoch);
   const bullPayout = lastRound.bullPayout;
   const bearPayout = lastRound.bearPayout;
+  const percentageProfit = roundWon && lastRound.bet == BET_UP ? ((bullPayout - 1) * 100) : ((bearPayout - 1) * 100);
   const betAmount = lastRound.betAmount;
   const betTxGasFee = lastRound.txGasFee;
   const claimTransaction = isClaimable ? await claimRewards([epoch]) : { status: 0, txGasFee: 0};
@@ -162,6 +167,7 @@ const createEndRoundEvent = async (roundHistory, epoch) => {
     isClaimable: isClaimable,
     claimExecuted: claimTransaction.transactionExeption ? null : claimTransaction.status === 1,
     roundProfit: roundWon ? roundEarning : -betAmount,
+    percentageProfit: roundWon ? percentageProfit : -100,
     betTxGasFee: betTxGasFee,
     txClaimGasFee: txClaimGasFee
   };

@@ -150,11 +150,11 @@ const GLOBAL_CONFIG = {
      */ 
     SIMULATION_MODE: true,
     /**
-     * Fake balance used in simulation mode (in Crypto)
+     * Fake balance used in simulation mode
      * @default 50
      * @type {number}
      */ 
-    SIMULATION_BALANCE: 50, // in Crypto
+    SIMULATION_BALANCE: 50, // in USD
     /**
      * Calculate the gas fee in simulation mode use this params for estimate gas functions (betBull, betBear, claim)
      * @default 90000

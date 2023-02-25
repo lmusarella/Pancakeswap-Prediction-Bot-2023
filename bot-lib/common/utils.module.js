@@ -5,17 +5,27 @@
 const { ethers } = require('ethers');
 const fs = require('fs');
 const Big = require("big.js");
-const { BET_UP, BET_DOWN, CRYPTO_DECIMAL, USD_DECIMAL } = require("./constants/bot.constants");
+const { BET_UP, BET_DOWN, CRYPTO_DECIMAL, USD_DECIMAL, BNB_CRYPTO } = require("./constants/bot.constants");
 const { GLOBAL_CONFIG } = require('../../bot-configuration/bot-configuration');
 
 //Default Config
 const UTILS_LOCAL_STATE = {
-  cryptoSelectdUsdPrice: 0
+  cryptoSelectdUsdPrice: 0,
+  cryptoFeeUsdPrice: 0
 }
 
 const getCryptoUsdPrice = () => {
   return UTILS_LOCAL_STATE.cryptoSelectdUsdPrice;
 }
+
+const getCryptoFeeUsdPrice = () => {
+  return UTILS_LOCAL_STATE.cryptoFeeUsdPrice;
+}
+
+const setCryptoFeeUsdPrice = (cryptoUsdPrice) => {
+  UTILS_LOCAL_STATE.cryptoFeeUsdPrice = cryptoUsdPrice
+}
+
 
 const setCryptoUsdPrice = (cryptoUsdPrice) => {
   UTILS_LOCAL_STATE.cryptoSelectdUsdPrice = cryptoUsdPrice
@@ -31,6 +41,10 @@ const formatEther = (amount) => {
 
 const getCrypto = () => {
   return GLOBAL_CONFIG.PCS_CRYPTO_SELECTED;
+}
+
+const getFeeCrypto = () => {
+  return BNB_CRYPTO;
 }
 
 const formatUnit = (amount, unit) => {
@@ -57,6 +71,10 @@ const parseFromCryptoToUsd = (cryptoPrice) => {
   return fixedFloatNumber(cryptoPrice * getCryptoUsdPrice(), USD_DECIMAL);
 }
 
+const parseFeeFromCryptoToUsd = (cryptoPrice) => {
+  return fixedFloatNumber(cryptoPrice * getCryptoFeeUsdPrice(), USD_DECIMAL);
+}
+
 const reduceWaitingTimeByTwoBlocks = (waitingTime) => {
   if (waitingTime <= 6000) {
     return waitingTime;
@@ -74,6 +92,7 @@ const percentageChange = (a, b) => {
 
 const writeOrUpdateFile = (path, jsonFileContent) => {
   fs.writeFileSync(path, JSON.stringify(jsonFileContent), "utf8");
+  return jsonFileContent;
 }
 
 const getFileJsonContent = async (path) => {
@@ -126,6 +145,7 @@ module.exports = {
   formatEther,
   parseEther,
   getCrypto,
+  getFeeCrypto,
   formatUnit,
   reduceWaitingTimeByTwoBlocks,
   percentage,
@@ -137,7 +157,10 @@ module.exports = {
   parseRoundDataFromSmartContract,
   parseFromUsdToCrypto,
   parseFromCryptoToUsd,
+  parseFeeFromCryptoToUsd,
   getCryptoUsdPrice,
   setCryptoUsdPrice,
+  getCryptoFeeUsdPrice,
+  setCryptoFeeUsdPrice,
   updateCryptoUsdPriceFromSmartContract
 };

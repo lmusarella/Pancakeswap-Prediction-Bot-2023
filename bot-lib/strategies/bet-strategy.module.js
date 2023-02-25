@@ -4,7 +4,7 @@
  */
 const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
 const { BET_DOWN, BET_UP } = require("../common/constants/bot.constants");
-const { parseFromUsdToCrypto, formatUnit } = require("../common/utils.module");
+const { parseFromUsdToCrypto, formatUnit, parseFeeFromCryptoToUsd } = require("../common/utils.module");
 const { saveRoundInHistory } = require("../history/history.module");
 const { betUp, betDown } = require("../smart-contracts/pcs-prediction-smart-contract.module");
 const { getSimulationBalance, updateSimulationBalance } = require("../wallet/wallet.module");
@@ -15,9 +15,9 @@ const betDownStrategy = async (epoch) => {
     const cryptoBetAmount = parseFromUsdToCrypto(BET_CONFIG.BET_AMOUNT);
     const transaction = parseTransactionReceipt(await betDown(cryptoBetAmount, epoch));
     if (GLOBAL_CONFIG.SIMULATION_MODE) {
-        updateSimulationBalance(getSimulationBalance() - cryptoBetAmount - transaction.txGasFee);
+        updateSimulationBalance(getSimulationBalance() - parseFromUsdToCrypto(cryptoBetAmount) - parseFeeFromCryptoToUsd(transaction.txGasFee));
     }
-    await saveRoundInHistory({ round: formatUnit(epoch), betAmount: cryptoBetAmount, bet: BET_DOWN, betExecuted: transaction.betExecuted, txGasFee: transaction.txGasFee });
+    await saveRoundInHistory([{ round: formatUnit(epoch), betAmount: cryptoBetAmount, bet: BET_DOWN, betExecuted: transaction.betExecuted, txGasFee: transaction.txGasFee }]);
     return transaction.betExecuted;
 }
 
@@ -25,9 +25,9 @@ const betUpStrategy = async (epoch) => {
     const cryptoBetAmount = parseFromUsdToCrypto(BET_CONFIG.BET_AMOUNT);
     const transaction = parseTransactionReceipt(await betUp(cryptoBetAmount, epoch));
     if (GLOBAL_CONFIG.SIMULATION_MODE) {
-        updateSimulationBalance(getSimulationBalance() - cryptoBetAmount - transaction.txGasFee);
+        updateSimulationBalance(getSimulationBalance() - parseFromUsdToCrypto(cryptoBetAmount) - parseFeeFromCryptoToUsd(transaction.txGasFee));
     }
-    await saveRoundInHistory({ round: formatUnit(epoch), betAmount: cryptoBetAmount, bet: BET_UP, betExecuted: transaction.betExecuted, txGasFee: transaction.txGasFee });
+    await saveRoundInHistory([{ round: formatUnit(epoch), betAmount: cryptoBetAmount, bet: BET_UP, betExecuted: transaction.betExecuted, txGasFee: transaction.txGasFee }]);
     return transaction.betExecuted;
 }
 

@@ -2,9 +2,9 @@
  * @Module 
  * @author luca.musarella
  */
-const { getCrypto, getCryptoUsdPrice, parseFromUsdToCrypto, parseFromCryptoToUsd, fixedFloatNumber, formatUnit } = require("./utils.module");
+const { getCrypto, getCryptoUsdPrice, parseFromUsdToCrypto, parseFromCryptoToUsd, fixedFloatNumber, formatUnit, parseFeeFromCryptoToUsd, getFeeCrypto, getCryptoFeeUsdPrice } = require("./utils.module");
 const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
-const { BET_UP, USD_DECIMAL, CRYPTO_DECIMAL, COPY_TRADING_STRATEGY, START_ROUND_WAITING_TIME } = require("./constants/bot.constants");
+const { BET_UP, USD_DECIMAL, CRYPTO_DECIMAL, COPY_TRADING_STRATEGY, START_ROUND_WAITING_TIME, BNB_CRYPTO } = require("./constants/bot.constants");
 
 const BET_CONFIG = GLOBAL_CONFIG.BET_CONFIGURATION;
 
@@ -60,7 +60,11 @@ const printStopBotMessage = () => {
 
 const printWelcomeMessage = () => {
     printEmptyRow();
-    console.log(`🤗 WELCOME ON ${GLOBAL_CONFIG.PCS_CRYPTO_SELECTED}-USDT PREDICTION GAME BOT!`, `(`, 1, getCrypto(), "=", getCryptoUsdPrice(), "USD )");
+    console.log(`🤗 WELCOME ON ${GLOBAL_CONFIG.PCS_CRYPTO_SELECTED}-USDT PREDICTION GAME BOT!`);
+    console.log( `(`, 1, getCrypto(), "=", getCryptoUsdPrice(), "USD )");
+    if(getCrypto() != BNB_CRYPTO) {
+        console.log( `(`, 1, getFeeCrypto(), "=", getCryptoFeeUsdPrice(), "USD )");
+    }
     printEmptyRow();
     printSectionSeparator();
 }
@@ -130,13 +134,13 @@ const printEndRoundEvent = (endRoundEvent) => {
     if (endRoundEvent.betTransactionError) {
         console.log(SPACE, "⛔ Bet Transaction Error",);
     } else {
-        console.log(SPACE, endRoundEvent.roundWon ? '👍 Won:' : '👎 Lost:', parseFromCryptoToUsd(endRoundEvent.roundProfit, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.roundProfit, CRYPTO_DECIMAL), getCrypto());
+        console.log(SPACE, endRoundEvent.roundWon ? '👍 Won:' : '👎 Lost:', parseFromCryptoToUsd(endRoundEvent.roundProfit, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.roundProfit, CRYPTO_DECIMAL), getCrypto(), fixedFloatNumber(endRoundEvent.percentageProfit, USD_DECIMAL), '%');
     }
     const rewardClaimed = (GLOBAL_CONFIG.SIMULATION_MODE && endRoundEvent.roundWon) || (endRoundEvent.isClaimable && endRoundEvent.claimExecuted);
     console.log(SPACE, rewardClaimed ? '✔️  Rewards Claimed' : endRoundEvent.claimExecuted === null ? '⛔ Claim Transaction Error' : '❌ Rewards Claimed');
-    console.log(SPACE, '⛽ Bet Tx Fee:', parseFromCryptoToUsd(endRoundEvent.betTxGasFee, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.betTxGasFee, CRYPTO_DECIMAL), getCrypto())
+    console.log(SPACE, '⛽ Bet Tx Fee:', parseFeeFromCryptoToUsd(endRoundEvent.betTxGasFee, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.betTxGasFee, CRYPTO_DECIMAL), getFeeCrypto())
     if(rewardClaimed) {
-        console.log(SPACE, '⛽ Claim Tx Fee:', parseFromCryptoToUsd(endRoundEvent.txClaimGasFee, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.txClaimGasFee, CRYPTO_DECIMAL), getCrypto())
+        console.log(SPACE, '⛽ Claim Tx Fee:', parseFeeFromCryptoToUsd(endRoundEvent.txClaimGasFee, USD_DECIMAL), `USD =`, fixedFloatNumber(endRoundEvent.txClaimGasFee, CRYPTO_DECIMAL), getFeeCrypto())
     }
 
     printSectionSeparator();
@@ -149,7 +153,7 @@ const printStatistics = (statistics, roundInPending) => {
     console.log(SPACE, `🍀 Fortune: ${fixedFloatNumber(statistics.percentage, USD_DECIMAL)} %`);
     console.log(SPACE, `👍 ${statistics.win}|${statistics.loss} 👎 `);
     console.log(SPACE, `💰 Profit:`, statistics.profit_usd, `USD =`, fixedFloatNumber(statistics.profit_crypto, CRYPTO_DECIMAL), getCrypto(), '(fees excluded)');
-    console.log(SPACE, `⛽ Total Fees:`, statistics.totalTxGasFeeUsd, `USD =`, fixedFloatNumber(statistics.totalTxGasFee, CRYPTO_DECIMAL), getCrypto());
+    console.log(SPACE, `⛽ Total Fees:`, statistics.totalTxGasFeeUsd, `USD =`, fixedFloatNumber(statistics.totalTxGasFee, CRYPTO_DECIMAL), getFeeCrypto());
     printSectionSeparator();
 }
 
