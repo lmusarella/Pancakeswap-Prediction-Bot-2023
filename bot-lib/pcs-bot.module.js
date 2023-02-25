@@ -159,8 +159,8 @@ const createEndRoundEvent = async (lastRound, epoch) => {
   const betTransactionError = lastRound.bet && !lastRound.betExecuted;
   const claimTransaction = await claimStrategy(epoch);
   lastRound.txClaimGasFee = (GLOBAL_CONFIG.SIMULATION_MODE && roundWon) ? lastRound.txGasFee : claimTransaction.txGasFee;
-  const percentageProfit = roundWon && lastRound.bet == BET_UP ? ((lastRound.bullPayout - 1) * 100) : ((lastRound.bearPayout - 1) * 100);
-  const roundEarning = roundWon && lastRound.bet == BET_UP ? (lastRound.betAmount * lastRound.bullPayout - lastRound.betAmount) : (lastRound.betAmount * lastRound.bearPayout - lastRound.betAmount);
+  const percentageProfit = lastRound.bet == BET_UP ? ((lastRound.bullPayout - 1) * 100) : ((lastRound.bearPayout - 1) * 100);
+  const roundEarning = lastRound.bet == BET_UP ? (lastRound.betAmount * lastRound.bullPayout - lastRound.betAmount) : (lastRound.betAmount * lastRound.bearPayout - lastRound.betAmount);
   return {
     id: formatUnit(epoch),
     roundWon: roundWon,

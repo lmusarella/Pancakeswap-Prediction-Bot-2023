@@ -160,9 +160,14 @@ const printStatistics = (statistics, roundInPending) => {
 }
 
 const printTransactionError = (exeption, epoch) => {
-    const exeptionBody = JSON.parse(exeption.error.body);
-    const errorMessage = exeptionBody.error.message;
-    console.log("⛔ Transaction Error [", formatUnit(epoch),`][ ${exeption.code} ] =>`, errorMessage);
+    let errorMessage;
+    try {
+        const exeptionBody = JSON.parse(exeption.error.body);
+        errorMessage = exeptionBody.error.message;
+    } catch {
+        errorMessage = exeption;
+    }
+    console.log("⛔ Transaction Error [", getConsoleTime(),"][", formatUnit(epoch),`][ ${exeption.code} ] =>`, errorMessage);
     printSectionSeparator();
 }
 
