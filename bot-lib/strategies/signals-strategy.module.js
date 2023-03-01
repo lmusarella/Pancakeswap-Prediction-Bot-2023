@@ -18,13 +18,13 @@ const executeStrategyWithSignals = async (epoch, betRoundEvent) => {
         return betRoundEvent;
     }
     if (checkSignalsUpPrediction(signals)) {
-        betRoundEvent.bet = BET_UP;
+        betRoundEvent.bet = GLOBAL_CONFIG.REVERSE_BETTING ? BET_DOWN : BET_UP;
         betRoundEvent.message = `🔮 Signal Prediction: UP 🟢 ${percentage(signals.buy, signals.sell)}%`;
-        betRoundEvent.betExecuted = await betUpStrategy(epoch);
+        betRoundEvent.betExecuted = GLOBAL_CONFIG.REVERSE_BETTING ? await betDownStrategy(epoch) : await betUpStrategy(epoch);
     } else if (checkSignalsDownPrediction(signals)) {
-        betRoundEvent.bet = BET_DOWN;
+        betRoundEvent.bet = GLOBAL_CONFIG.REVERSE_BETTING ? BET_UP : BET_DOWN;
         betRoundEvent.message = `🔮 Signal Prediction: DOWN 🔴 ${percentage(signals.sell, signals.buy)}%`;
-        betRoundEvent.betExecuted = await betDownStrategy(epoch);
+        betRoundEvent.betExecuted = GLOBAL_CONFIG.REVERSE_BETTING ? await betUpStrategy(epoch): await betDownStrategy(epoch);
     } else {
         betRoundEvent.skipRound = true;
         betRoundEvent.message = `Threshold not reached ${(signals.buy > signals.sell ? percentage(signals.buy, signals.sell) : percentage(signals.sell, signals.buy))} %`;
