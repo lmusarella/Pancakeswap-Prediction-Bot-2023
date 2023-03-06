@@ -224,6 +224,10 @@ A lot of wallets don't provide you the private key, but just the **seed phrase**
 
 ## 👁️ Disclaimers
 
+🔧The code is in BETA, so please be aware of the risks that come with it. Don't risk any money you're not willing to lose.
+
+💸This code, repository or scripts should NOT be construed as investment advice. Any mention of past or projected investment performance is not, and should not be construed as, a recommendation or guarantee of any particular result or benefit. By using this application, you agree to bear all risk of loss of money and waive any claims against the developers of the program or anyone associated with it.
+
 **Please be aware of clones**
 
  👷**Use it at your own risk.** 
