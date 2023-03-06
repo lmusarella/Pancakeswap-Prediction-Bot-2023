@@ -1,5 +1,5 @@
   
-# 🔮🚀 PCS-Prediction v2.0
+# 🔮🚀 Pancakeswap-Prediction-Bot v2.0
 
 ![PancakeSwap-Logo](/assets/img/logo.jpg?raw=true)
 
