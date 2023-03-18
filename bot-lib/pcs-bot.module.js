@@ -15,6 +15,7 @@ const { isQuoteStrategy, executeStrategyWithQuotes } = require('./strategies/quo
 const { executeBetUpCopyTradingStrategy, executeBetDownCopyTradingStrategy } = require('./strategies/copytrading-strategy.module');
 const { BINANCE_API_BNB_USDT_URL, BINANCE_API_CAKE_USDT_URL } = require("./common/constants/api.constants");
 const { claimStrategy } = require("./strategies/bet-strategy.module");
+const { getCakeBalance } = require("./smart-contracts/cake-token-smart-contract.module");
  
 const BET_CONFIG = GLOBAL_CONFIG.BET_CONFIGURATION;
 const STRATEGY_CONFIG = GLOBAL_CONFIG.STRATEGY_CONFIGURATION;
