@@ -159,15 +159,15 @@ const printStatistics = (statistics, roundInPending) => {
     printSectionSeparator();
 }
 
-const printTransactionError = (exeption, epoch) => {
+const printTransactionError = (stacktrace, exception, epoch) => {
     let errorMessage;
     try {
-        const exeptionBody = JSON.parse(exeption.error.body);
-        errorMessage = exeptionBody.error.message;
+        const exceptionBody = JSON.parse(exception.error.body);
+        errorMessage = exceptionBody.error.message;
     } catch {
-        errorMessage = exeption;
+        errorMessage = exception ? exception : stacktrace;
     }
-    console.log("⛔ Transaction Error [", getConsoleTime(),"][", formatUnit(epoch),`][ ${exeption.code} ] =>`, errorMessage);
+    console.log("⛔ Transaction Error [", getConsoleTime(),"][", formatUnit(epoch),`][ ${exception ? exception.code : 'ERROR'} ] =>`, errorMessage);
     printSectionSeparator();
 }
 
