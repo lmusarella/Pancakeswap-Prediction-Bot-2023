@@ -59,7 +59,7 @@ const claimRewards = async (rounds) => {
     const txGasFee = formatUnit(gasUsed * effectiveGasPrice, "18");
     return { status: receipt.status, txGasFee: txGasFee };
   } catch (e) {
-    printTransactionError(e.error, rounds);
+    printTransactionError(e, e.error, rounds);
     return { status: 0, transactionExeption: true };
   }
 };
@@ -78,7 +78,7 @@ const betUp = async (amount, epoch) => {
     }
   } catch (e) {
     GLOBAL_CONFIG.WAITING_TIME = reduceWaitingTimeByTwoBlocks(GLOBAL_CONFIG.WAITING_TIME);
-    printTransactionError(e.error, epoch);
+    printTransactionError(e, e.error, epoch);
     return { status: 0, transactionExeption: true };
   }
 };
@@ -97,7 +97,7 @@ const betDown = async (amount, epoch) => {
     }
   } catch (e) {
     GLOBAL_CONFIG.WAITING_TIME = reduceWaitingTimeByTwoBlocks(GLOBAL_CONFIG.WAITING_TIME);
-    printTransactionError(e.error, epoch);
+    printTransactionError(e, e.error, epoch);
     return { status: 0, transactionExeption: true };
   }
 };
