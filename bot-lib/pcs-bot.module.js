@@ -89,7 +89,7 @@ const executeBetUpStrategy = async (epoch) => {
 }
 
 const executeBetDownStrategy = async (epoch) => {
-  return await executeBetDownCopyTradingStrategy(epoch, createBetRoundEvent(epoch));;
+  return await executeBetDownCopyTradingStrategy(epoch, createBetRoundEvent(epoch));
 }
 
 const createBetRoundEvent = (epoch) => {

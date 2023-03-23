@@ -32,7 +32,7 @@ const isCopyTradingStrategy = () => {
 
 const registerUser = (round, wallet, bet, betAmount) => {
     const currentRoundUsers = roundUsers.get(round);
-    if (roundUsers.get(round)) {
+    if (currentRoundUsers) {
         currentRoundUsers.push({ wallet: wallet, bet: bet, betAmount: betAmount });
     } else {
         roundUsers.set(round, [{ wallet: wallet, bet: bet, betAmount: betAmount }]);
@@ -53,6 +53,9 @@ const handleUsersActivity = async (round) => {
     const users = roundUsers.get(round);
     let totalBetAmount = 0;
     const usersActivity = await getUserActivityFromHistory();
+    if (!users) {
+        return;
+    }
     users.forEach(user => {
         registerUserActivity(usersActivity, round, user.wallet);
         totalBetAmount += user.betAmount;
