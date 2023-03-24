@@ -9,7 +9,7 @@ const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
 const { BNB_CRYPTO, CRYPTO_DECIMAL } = require("../common/constants/bot.constants");
 const bnbPredictionGameAbi = require("./json_abi/bnb_smartcontract_bet_abi.json");
 const cakePredictionGameAbi = require("./json_abi/cake_smartcontract_bet_abi.json");
-const { reduceWaitingTimeByTwoBlocks, parseBetAmount, fixedFloatNumber, formatUnit, parseRoundDataFromSmartContract } = require('../common/utils.module');
+const { reduceWaitingTimeByTwoBlocks, parseBetAmount, fixedFloatNumber, formatUnit, parseRoundDataFromSmartContract, getCrypto } = require('../common/utils.module');
 const { printTransactionError } = require('../common/print.module');
 
 const bnbPredictionGameSmartContract = new ethers.Contract(BNB_PREDICTON_GAME_SMARTCONTRACT_ADDRESS, bnbPredictionGameAbi, signer);
@@ -67,7 +67,7 @@ const claimRewards = async (rounds) => {
 const betUp = async (amount, epoch) => {
   try {
     if (!GLOBAL_CONFIG.SIMULATION_MODE) {
-      const tx = await getSmartContract().betBull(epoch, { value: parseBetAmount(amount) });
+      const tx = await getSmartContract().betBull(epoch, getAmountValue(amount));
       return await tx.wait();
     } else {
       return {
@@ -86,7 +86,7 @@ const betUp = async (amount, epoch) => {
 const betDown = async (amount, epoch) => {
   try {
     if (!GLOBAL_CONFIG.SIMULATION_MODE) {
-      const tx = await getSmartContract().betBear(epoch, { value: parseBetAmount(amount) });
+      const tx = await getSmartContract().betBear(epoch, getAmountValue(amount));
       return await tx.wait();
     } else {
       return {
@@ -101,6 +101,12 @@ const betDown = async (amount, epoch) => {
     return { status: 0, transactionExeption: true };
   }
 };
+
+const getAmountValue = (amount) => {
+  //BNB pancakeswap smart contract needs { value: BigNumber }
+  //CAKE pancakeswap smart contract needs BigNumber
+  return getCrypto() === BNB_CRYPTO ? { value: parseBetAmount(amount) } : parseBetAmount(amount);
+}
 
 module.exports = {
   setSmartContratConfig,
