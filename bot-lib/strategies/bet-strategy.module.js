@@ -64,7 +64,7 @@ const claimStrategy = async (epoch) => {
 }
 
 /**
- * Description placeholder
+ * Parse the transaction receipt from smart contract and calculate the gas fee and if the transaction is OK or KO
  * @date 4/22/2023 - 3:57:23 PM
  *
  * @param {{{ status: Number, gasUsed: Number, effectiveGasPrice: Number, transactionExeption: Boolean}}} txReceipt
