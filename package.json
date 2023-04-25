@@ -1,18 +1,22 @@
 {
   "name": "pancakeswap-prediction-game-bot",
   "version": "1.0.0",
-  "type":"commonjs",
+  "type": "commonjs",
   "scripts": {
-    "pcs-bot": "node ./bot-script/pcs-bot.js"
+    "pcs-bot": "node ./bot-script/pcs-bot.js",  
+    "test": "jest"
   },
   "private": true,
   "dependencies": {
-    "dotenv": "^16.0.3",
-    "ethers": "^5.5.3",
     "big.js": "^6.1.1",
     "cross-fetch": "^3.1.4",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.5.3",
     "lodash": "^4.17.21",
     "trading-view-recommends-parser-nodejs": "^1.0.2",
     "tslib": "^2.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0"
   }
 }

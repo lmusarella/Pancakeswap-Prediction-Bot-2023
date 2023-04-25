@@ -1,12 +1,11 @@
 /**
+ * Module that displays the functions useful for printing on the screen/terminal, the information useful during the execution of the bot.
  * @Module 
  * @author luca.musarella
  */
-const { getCrypto, getCryptoUsdPrice, parseFromUsdToCrypto, parseFromCryptoToUsd, fixedFloatNumber, formatUnit, parseFeeFromCryptoToUsd, getFeeCrypto, getCryptoFeeUsdPrice } = require("./utils.module");
+const { getCrypto, getCryptoUsdPrice, parseFromUsdToCrypto, parseFromCryptoToUsd, fixedFloatNumber, formatUnit, parseFeeFromCryptoToUsd, getFeeCrypto, getCryptoFeeUsdPrice, getBetAmount } = require("./utils.module");
 const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
 const { BET_UP, USD_DECIMAL, CRYPTO_DECIMAL, COPY_TRADING_STRATEGY, START_ROUND_WAITING_TIME, BNB_CRYPTO } = require("./constants/bot.constants");
-
-const BET_CONFIG = GLOBAL_CONFIG.BET_CONFIGURATION;
 
 const LOG_SECTION_SEPARATOR = `====================================================================`;
 const LOG_SUB_SECTION_SEPARATOR = `- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - `;
@@ -81,9 +80,10 @@ const printGlobalSettings = () => {
     console.log(SPACE, `▫️ Simulation Mode:`, GLOBAL_CONFIG.SIMULATION_MODE ? '✔️' : '❌');
     console.log(SPACE, `▫️ Auto Claim:`, GLOBAL_CONFIG.CLAIM_REWARDS || GLOBAL_CONFIG.SIMULATION_MODE ? '✔️' : '❌');
     printSubSectionSeparator();
-    console.log(SPACE, `▫️ Bet Amount:`, BET_CONFIG.BET_AMOUNT, 'USD =', parseFromUsdToCrypto(BET_CONFIG.BET_AMOUNT), getCrypto());
-    console.log(SPACE, `▫️ Daily Goal:`, BET_CONFIG.DAILY_GOAL, 'USD =', parseFromUsdToCrypto(BET_CONFIG.DAILY_GOAL), getCrypto());
-    console.log(SPACE, `▫️ Stop Loss:`, BET_CONFIG.STOP_LOSS, 'USD =', parseFromUsdToCrypto(BET_CONFIG.STOP_LOSS), getCrypto());
+    console.log(SPACE, `▫️ Martingale:`, GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.ACTIVE ? '✔️' : '❌');
+    console.log(SPACE, `▫️ Bet Amount:`, getBetAmount(), 'USD =', parseFromUsdToCrypto(getBetAmount()), getCrypto());
+    console.log(SPACE, `▫️ Daily Goal:`, GLOBAL_CONFIG.BET_CONFIGURATION.DAILY_GOAL, 'USD =', parseFromUsdToCrypto(GLOBAL_CONFIG.BET_CONFIGURATION.DAILY_GOAL), getCrypto());
+    console.log(SPACE, `▫️ Stop Loss:`, GLOBAL_CONFIG.BET_CONFIGURATION.STOP_LOSS, 'USD =', parseFromUsdToCrypto(GLOBAL_CONFIG.BET_CONFIGURATION.STOP_LOSS), getCrypto());
     printSectionSeparator();
 }
 
@@ -109,8 +109,14 @@ const printStartRoundEvent = (startRoundEvent, pendingRounds) => {
     }
     printSectionSeparator();
     if (startRoundEvent.skipRound) {
-        console.log("🚨", "Bot is stopping! Waiting pending rounds:", Array.from(pendingRounds.values()).map(round => round.id));
-        printSectionSeparator();
+        if(GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.ACTIVE && startRoundEvent.validProfit && startRoundEvent.validBalance) {
+            console.log(`♻️  Skip Round:`, startRoundEvent.id);
+            console.log("🚨", "Bot is running in Martingale Mode! Waiting pending rounds:", Array.from(pendingRounds.values()).map(round => round.id));
+            printSectionSeparator();
+        } else {
+            console.log("🚨", "Bot is stopping! Waiting pending rounds:", Array.from(pendingRounds.values()).map(round => round.id));
+            printSectionSeparator();
+        }    
     }
 }
 

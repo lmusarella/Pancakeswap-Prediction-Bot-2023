@@ -56,9 +56,14 @@ const GLOBAL_CONFIG = {
      */ 
     WAITING_TIME: 265000, 
     BET_CONFIGURATION: {
-        BET_AMOUNT: 1, // in USD
+        BET_AMOUNT: 0.5, // in USD
         DAILY_GOAL: 10, // in USD
-        STOP_LOSS: 5 // in USD
+        STOP_LOSS: 5, // in USD
+        MARTINGALE_CONFIG: {
+            ACTIVE: true, // Flag that enabled Martingale/Anti-Martingale bet strategy
+            ANTI_MARTINGALE: false, // Increment BetAmount after loss if FALSE, Increment BetAmount after Win if TRUE
+            INCREMENT_BET_AMOUNT: 2 // INCREMENT_BET_AMOUNT x BET_AMOUNT = NEW BET_AMOUNT after loss or win (based on ANTI_MARTINGALE flag)                    
+        }
     },
     STRATEGY_CONFIGURATION: {    
         SIGNAL_STRATEGY: {           
