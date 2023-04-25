@@ -8,6 +8,7 @@
  - [x] CAKE-UDST and BNB-USDT game 🔥
  - [x] Simulation Mode (use fake balance) 🔥
  - [x] Auto collect winnings 🔥
+ - [x] Martingale and Anti-Martingale 🔥
  - [x] Copy Trading Strategy (copy address betting) 🔥
  - [x] Quote Trading Strategy (lowest or highest) 🔥
  - [x] Simplify settings 🔥
@@ -170,7 +171,12 @@ const GLOBAL_CONFIG = {
     BET_CONFIGURATION: {
         BET_AMOUNT: 5, // in USD
         DAILY_GOAL: 50, // in USD
-        STOP_LOSS: 50 // in USD
+        STOP_LOSS: 50, // in USD
+        MARTINGALE_CONFIG: {
+            ACTIVE: true, // Flag that enabled Martingale/Anti-Martingale bet strategy
+            ANTI_MARTINGALE: false, // Increment BetAmount after loss if FALSE, Increment BetAmount after Win if TRUE
+            INCREMENT_BET_AMOUNT: 2 // INCREMENT_BET_AMOUNT x BET_AMOUNT = NEW BET_AMOUNT after loss or win (based on ANTI_MARTINGALE flag)                    
+        }
     },
     STRATEGY_CONFIGURATION: {    
         SIGNAL_STRATEGY: {           
