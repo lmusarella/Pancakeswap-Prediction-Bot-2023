@@ -8,6 +8,8 @@ const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
 const { BET_DOWN, BET_UP, QUOTE_STRATEGY } = require("../common/constants/bot.constants");
 const { getRoundData } = require("../smart-contracts/pcs-prediction-smart-contract.module");
 const { betDownStrategy, betUpStrategy } = require("./bet-strategy.module");
+const { CONSOLE_STRINGS } = require("../common/constants/strings.constants");
+const { evalString } = require("../common/print.module");
 const QUOTE_STRATEGY_CONFIG = GLOBAL_CONFIG.STRATEGY_CONFIGURATION.QUOTE_STRATEGY;
 
 /**
@@ -23,12 +25,12 @@ const executeStrategyWithQuotes = async (epoch, betRoundEvent) => {
   const roundData = await getRoundData(epoch);
   if (!roundData.validQuotes) {
     betRoundEvent.skipRound = true;
-    betRoundEvent.message = `Inconsistent quotas from smart contract`;
+    betRoundEvent.message = CONSOLE_STRINGS.WARNING_MESSAGE.INCONSISTENT_QUOTAS;
     return betRoundEvent;
   }
   betRoundEvent.bullPayout = roundData.bullPayout;
   betRoundEvent.bearPayout = roundData.bearPayout;
-  betRoundEvent.message = `⬆️  BullPayout ${betRoundEvent.bullPayout}x - ⬇️  BearPayout ${betRoundEvent.bearPayout}x`;
+  betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.CURRENT_QUOTE_MESSAGE, { bullPayout: betRoundEvent.bullPayout, bearPayout: betRoundEvent.bearPayout });
   if (QUOTE_STRATEGY_CONFIG.SELECT_LOWER_QUOTE) {
     betRoundEvent.bet = roundData.bullPayout > roundData.bearPayout ? BET_DOWN : BET_UP;
     betRoundEvent.betExecuted = roundData.bullPayout > roundData.bearPayout ? await betDownStrategy(epoch) : await betUpStrategy(epoch);

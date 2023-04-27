@@ -4,6 +4,7 @@
  * @author luca.musarella
  */
 const fetch = require("cross-fetch");
+const { CONSOLE_STRINGS } = require("../common/constants/strings.constants");
 
 /**
  * Try to connect to the binance APIs, fetch the data and return the current price of the incoming cryptocurrency.
@@ -17,12 +18,12 @@ const getBinancePrice = async (crypto_api_url) => {
   try {
     const res = await fetch(crypto_api_url);
     if (res.status >= 400) {
-      throw new Error("Bad response from server");
+      throw new Error(CONSOLE_STRINGS.ERROR_MESSAGE.BAD_REPONSE_API);
     }
     const price = await res.json();
     return parseFloat(price.price);
   } catch (err) {
-    console.error("Unable to connect to Binance API", err);
+    console.error(CONSOLE_STRINGS.ERROR_MESSAGE.NO_CONNECTION_BINANCE_API, err);
   }
 };
 

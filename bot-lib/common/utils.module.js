@@ -8,6 +8,7 @@ const fs = require('fs');
 const Big = require("big.js");
 const { BET_UP, BET_DOWN, CRYPTO_DECIMAL, USD_DECIMAL, BNB_CRYPTO } = require("./constants/bot.constants");
 const { GLOBAL_CONFIG } = require('../../bot-configuration/bot-configuration');
+const { CONSOLE_STRINGS } = require('./constants/strings.constants');
 
 /**
  * Util local state
@@ -268,7 +269,7 @@ const getFileJsonContent = async (path) => {
       try {
         contentJsonFile = JSON.parse(fs.readFileSync(path));
       } catch (e) {
-        console.log("Error reading contentJsonFile:", e);
+        console.log(CONSOLE_STRINGS.ERROR_MESSAGE.ERROR_PARSE_JSON_FILE, e);
         return;
       }
       return contentJsonFile;

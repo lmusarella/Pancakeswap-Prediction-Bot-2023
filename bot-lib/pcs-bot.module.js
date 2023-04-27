@@ -18,6 +18,7 @@ const { BINANCE_API_BNB_USDT_URL, BINANCE_API_CAKE_USDT_URL } = require("./commo
 const { claimStrategy } = require("./strategies/bet-strategy.module");
 const { getCakeBalance } = require("./smart-contracts/cake-token-smart-contract.module");
 const { ethers } = require("ethers");
+const { CONSOLE_STRINGS } = require("./common/constants/strings.constants");
 
 
 /**
@@ -51,12 +52,12 @@ const checkGlobalConfiguration = () => {
   const validCryptoGames = [BNB_CRYPTO, CAKE_CRYPTO];
   const validBotStrategies = [SIGNAL_STRATEGY, QUOTE_STRATEGY, COPY_TRADING_STRATEGY];
   if (!validCryptoGames.includes(GLOBAL_CONFIG.PCS_CRYPTO_SELECTED)) {
-    console.log(`🚨 Select a valid game in [bot-configuration.js][PCS_CRYPTO_SELECTED] =>`, validCryptoGames);
+    console.log(CONSOLE_STRINGS.ERROR_MESSAGE.CONFIG_VALID_GAME, validCryptoGames);
     printSectionSeparator();
     stopBotCommand();
   }
   if (!validBotStrategies.includes(GLOBAL_CONFIG.SELECTED_STRATEGY)) {
-    console.log(`🚨 Select a valid strategy [bot-configuration.js][SELECTED_STRATEGY] =>`, validBotStrategies);
+    console.log(CONSOLE_STRINGS.ERROR_MESSAGE.CONFIG_VALID_STRATEGY, validBotStrategies);
     printSectionSeparator();
     stopBotCommand();
   }
@@ -108,7 +109,7 @@ const executeBetStrategy = async (epoch) => {
     return await executeStrategyWithQuotes(epoch, betRoundEvent);
   } else {
     betRoundEvent.skipRound = true;
-    betRoundEvent.message = "Strategy not execute!"
+    betRoundEvent.message = CONSOLE_STRINGS.WARNING_MESSAGE.STRATEGY_NOT_EXECUTE;
     return betRoundEvent;
   }
 }
@@ -204,13 +205,13 @@ const createStartRoundEvent = async (epoch, existPendingRound) => {
     startRoundEvent.validProfit = false;
     startRoundEvent.stopBot = !existPendingRound;
     startRoundEvent.skipRound = existPendingRound;
-    startRoundEvent.errors.push(`Stop Loss or Daily Goal reached!`);
+    startRoundEvent.errors.push(CONSOLE_STRINGS.ERROR_MESSAGE.STOP_LOSS_GOAL);
   }
   if (await checkBalanceNotEnough(actualCryptoBalance)) {
     startRoundEvent.validBalance = false;
     startRoundEvent.stopBot = !existPendingRound;
     startRoundEvent.skipRound = existPendingRound;
-    startRoundEvent.errors.push(`Your balance is not enough! Check your BET_AMOUNT and SmartContract MinBetAmount!`);
+    startRoundEvent.errors.push(CONSOLE_STRINGS.ERROR_MESSAGE.BALANCE_NOT_ENOUGH);
   }
   return startRoundEvent;
 };

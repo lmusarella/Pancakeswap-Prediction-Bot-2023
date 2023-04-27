@@ -19,12 +19,6 @@ const GLOBAL_CONFIG = {
      */
     SELECTED_STRATEGY: 'SIGNAL_STRATEGY',
     /**
-     * Flag which enables the reverse bet strategy (only for signals) if signals recommend to bet up, the bot bet down
-     * @default false
-     * @type {boolean}
-     */
-    REVERSE_BETTING: false,
-    /**
      * Flag which enables the automatic claim of bet winnings after each bet won
      * @default true
      * @type {boolean}
@@ -42,7 +36,7 @@ const GLOBAL_CONFIG = {
      * @default 50
      * @type {number}
      */ 
-    SIMULATION_BALANCE: 25, // in USD
+    SIMULATION_BALANCE: 5000, // in USD
     /**
      * Calculate the gas fee in simulation mode use this params for estimate gas functions (betBull, betBear, claim)
      * @default 90000
@@ -55,10 +49,16 @@ const GLOBAL_CONFIG = {
      * @type {number}
      */ 
     WAITING_TIME: 265000, 
+    /**
+     * Flag which enables to save users activity in history
+     * @default false
+     * @type {boolean}
+     */
+    USERS_ACTIVITY: false,
     BET_CONFIGURATION: {
-        BET_AMOUNT: 0.5, // in USD
-        DAILY_GOAL: 10, // in USD
-        STOP_LOSS: 5, // in USD
+        BET_AMOUNT: 50, // in USD
+        DAILY_GOAL: 500, // in USD
+        STOP_LOSS: 1000, // in USD
         MARTINGALE_CONFIG: {
             ACTIVE: true, // Flag that enabled Martingale/Anti-Martingale bet strategy
             ANTI_MARTINGALE: false, // Increment BetAmount after loss if FALSE, Increment BetAmount after Win if TRUE
@@ -67,6 +67,12 @@ const GLOBAL_CONFIG = {
     },
     STRATEGY_CONFIGURATION: {    
         SIGNAL_STRATEGY: {           
+            /**
+             * Flag which enables the reverse bet strategy (only for signals) if signals recommend to bet up, the bot bet down
+             * @default false
+             * @type {boolean}
+             */
+            REVERSE_BETTING: true,
             THRESHOLD: 55, // Minimum % of certainty of signals (50 - 100)
             DATASOURCE: "BINANCE" // Datasoure of the trading signals
         },

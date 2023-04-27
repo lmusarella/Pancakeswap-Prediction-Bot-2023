@@ -3,20 +3,20 @@
  * @Module 
  * @author luca.musarella
  */
-const { getCrypto, getCryptoUsdPrice, parseFromUsdToCrypto, parseFromCryptoToUsd, fixedFloatNumber, formatUnit, parseFeeFromCryptoToUsd, getFeeCrypto, getCryptoFeeUsdPrice, getBetAmount } = require("./utils.module");
+const { getCrypto, getCryptoUsdPrice, parseFromUsdToCrypto, parseFromCryptoToUsd, fixedFloatNumber, formatUnit, parseFeeFromCryptoToUsd, getFeeCrypto, getCryptoFeeUsdPrice, getBetAmount, formatEther } = require("./utils.module");
 const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
 const { BET_UP, USD_DECIMAL, CRYPTO_DECIMAL, COPY_TRADING_STRATEGY, START_ROUND_WAITING_TIME, BNB_CRYPTO } = require("./constants/bot.constants");
+const { CONSOLE_STRINGS } = require("./constants/strings.constants");
+const COPY_TRADING_STRATEGY_CONFIG = GLOBAL_CONFIG.STRATEGY_CONFIGURATION.COPY_TRADING_STRATEGY;
 
-const LOG_SECTION_SEPARATOR = `====================================================================`;
-const LOG_SUB_SECTION_SEPARATOR = `- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - `;
 const SPACE = ' ';
 
 const printSectionSeparator = () => {
-    console.log(LOG_SECTION_SEPARATOR);
+    console.log(CONSOLE_STRINGS.TEMPLATES.UTILS.LOG_SECTION_SEPARATOR);
 }
 
 const printSubSectionSeparator = () => {
-    console.log(LOG_SUB_SECTION_SEPARATOR);
+    console.log(CONSOLE_STRINGS.TEMPLATES.UTILS.LOG_SUB_SECTION_SEPARATOR);
 }
 
 const printEmptyRow = () => {
@@ -25,41 +25,41 @@ const printEmptyRow = () => {
 
 const printCopyRightLicense = () => {
     printSectionSeparator();
-    console.log("Copyright (c) 2023 l.musarella");
+    console.log(CONSOLE_STRINGS.TEMPLATES.COPYRIGHT.FIRST);
     printEmptyRow();
-    console.log("Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to  permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.");
+    console.log(CONSOLE_STRINGS.TEMPLATES.COPYRIGHT.SECOND);
     printEmptyRow();
-    console.log("THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE");
+    console.log(CONSOLE_STRINGS.TEMPLATES.COPYRIGHT.THIRD);
 }
 
 const printInitBotMessage = () => {
     printCopyRightLicense();
     printSectionSeparator();
     printEmptyRow();
-    console.log(`🟡 BOT INITIALIZING...`);
+    console.log(CONSOLE_STRINGS.INFO_MESSAGE.INIT_BOT);
     printEmptyRow();
     printSectionSeparator();
 }
 
-const printStartBotMessage = (currentEpoch) => {
+const printStartBotMessage = (currentRound) => {
     printEmptyRow();
-    console.log(`🟢 BOT STARTED`);
+    console.log(CONSOLE_STRINGS.INFO_MESSAGE.START_BOT);
     printEmptyRow();
     printSectionSeparator();
-    console.log(`⏰ Waiting for next round:`, currentEpoch + 1);
+    console.log(CONSOLE_STRINGS.INFO_MESSAGE.WAITING_NEXT_ROUND, currentRound + 1);
     printSectionSeparator();
 }
 
 const printStopBotMessage = () => {
     printEmptyRow();
-    console.log(`🔴 BOT STOPPED`);
+    console.log(CONSOLE_STRINGS.INFO_MESSAGE.STOP_BOT);
     printEmptyRow();
     printSectionSeparator();
 }
 
 const printWelcomeMessage = () => {
     printEmptyRow();
-    console.log(`🤗 WELCOME ON ${GLOBAL_CONFIG.PCS_CRYPTO_SELECTED}-USDT PREDICTION GAME BOT!`);
+    console.log(evalString(CONSOLE_STRINGS.INFO_MESSAGE.WELCOME_MESSAGE, { crypto: GLOBAL_CONFIG.PCS_CRYPTO_SELECTED }));
     printEmptyRow();
     console.log( `(`, 1, getCrypto(), "=", getCryptoUsdPrice(), "USD )");
     if(getCrypto() != BNB_CRYPTO) {
@@ -165,6 +165,16 @@ const printStatistics = (statistics, roundInPending) => {
     printSectionSeparator();
 }
 
+const printClaimMessage = (round, addedRewards) => {
+    console.log(`🗿 Round [`, round, `] Successful claimed`, parseFromCryptoToUsd(parseFloat(formatEther(addedRewards), USD_DECIMAL)), 'USD =', fixedFloatNumber(parseFloat(formatEther(addedRewards)), CRYPTO_DECIMAL), getCrypto());
+    printSectionSeparator();
+}
+
+const printFriendInactivityMessage = (round) => {
+    console.log(`🥺 Round [`, round, `] Sorry your friend`, [COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE], `didn't bet!`);
+    printSectionSeparator();
+}
+
 const printTransactionError = (stacktrace, exception, epoch) => {
     let errorMessage;
     try {
@@ -184,6 +194,10 @@ const getConsoleTime = () => {
     return `⌚ ${hours}:${minutes <= 9 ? "0" + minutes : minutes}`;
 };
 
+
+const evalString = (string, object) => string.replaceAll(/\{([^}]+)\}/gi, (_, a) => a.split('.').reduce((b, c) => b?.[c], object));
+
+
 module.exports = {
     printInitBotMessage,
     printStartBotMessage,
@@ -197,5 +211,8 @@ module.exports = {
     printStartRoundEvent,
     printBetRoundEvent,
     printEndRoundEvent,
-    printStatistics
+    printStatistics,
+    printClaimMessage,
+    printFriendInactivityMessage,
+    evalString
 };

@@ -9,11 +9,11 @@ const { EVENTS } = require("../bot-lib/common/constants/smart-contract.constants
 const { saveRoundInHistory, saveStatisticsInHistory } = require('../bot-lib/history/history.module');
 const { getSmartContract } = require('../bot-lib/smart-contracts/pcs-prediction-smart-contract.module');
 const { stopBotCommand, startBotCommand, executeBetStrategy, createStartRoundEvent, createEndRoundEvent, executeBetUpStrategy, executeBetDownStrategy, getEndRoundData } = require('../bot-lib/pcs-bot.module');
-const { formatEther, getCrypto, updateCryptoUsdPriceFromSmartContract, formatUnit, parseFromCryptoToUsd, fixedFloatNumber, setCryptoFeeUsdPrice } = require('../bot-lib/common/utils.module');
+const { updateCryptoUsdPriceFromSmartContract, formatUnit, setCryptoFeeUsdPrice } = require('../bot-lib/common/utils.module');
 const { updateSimulationBalance } = require("../bot-lib/wallet/wallet.module");
-const { printStartRoundEvent, printBetRoundEvent, printEndRoundEvent, printStatistics, printSectionSeparator } = require("../bot-lib/common/print.module");
+const { printStartRoundEvent, printBetRoundEvent, printEndRoundEvent, printStatistics, printClaimMessage, printFriendInactivityMessage } = require("../bot-lib/common/print.module");
 const { isCopyTradingStrategy, registerUser, handleUsersActivity, getMostActiveUser } = require("../bot-lib/strategies/copytrading-strategy.module");
-const { CRYPTO_DECIMAL, USD_DECIMAL, START_ROUND_WAITING_TIME, BET_DOWN, BET_UP } = require("../bot-lib/common/constants/bot.constants");
+const { START_ROUND_WAITING_TIME, BET_DOWN, BET_UP } = require("../bot-lib/common/constants/bot.constants");
 const { getBinancePrice } = require("../bot-lib/external-data/binance.module");
 const { BINANCE_API_BNB_USDT_URL } = require("../bot-lib/common/constants/api.constants");
 const sleep = require("util").promisify(setTimeout);
@@ -92,7 +92,9 @@ getSmartContract().on(EVENTS.BET_BEAR_EVENT, async (sender, epoch, betAmount) =>
   const round = formatUnit(epoch);
   //Check if the round is registerd
   if (pendingRoundEventStack.get(round)) {
-    registerUser(round, sender, BET_DOWN, formatUnit(betAmount, "18"));
+    if(GLOBAL_CONFIG.USERS_ACTIVITY) {
+      registerUser(round, sender, BET_DOWN, formatUnit(betAmount, "18"));
+    } 
     if (isCopyTradingStrategy() && sender == COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE) {
       const betRoundEvent = await executeBetDownStrategy(epoch);
       printBetRoundEvent(betRoundEvent);
@@ -106,7 +108,9 @@ getSmartContract().on(EVENTS.BET_BULL_EVENT, async (sender, epoch, betAmount) =>
   const round = formatUnit(epoch);
   //Check if the round is registerd
   if (pendingRoundEventStack.get(round)) {
-    registerUser(round, sender, BET_UP, formatUnit(betAmount, "18"));
+    if(GLOBAL_CONFIG.USERS_ACTIVITY) {
+      registerUser(round, sender, BET_UP, formatUnit(betAmount, "18"));
+    } 
     if (isCopyTradingStrategy() && sender == COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE) {
       const betRoundEvent = await executeBetUpStrategy(epoch);
       printBetRoundEvent(betRoundEvent);
@@ -120,13 +124,16 @@ getSmartContract().on(EVENTS.LOCK_ROUND, async (epoch) => {
   const round = formatUnit(epoch);
   //Check if the round is registerd
   if (pendingRoundEventStack.get(round)) {
-    await handleUsersActivity(round);
+    if(GLOBAL_CONFIG.USERS_ACTIVITY) {
+      await handleUsersActivity(round);
+    }  
     if (isCopyTradingStrategy()) {
       const roundEvent = pendingRoundEventStack.get(round);
       if (roundEvent && !roundEvent.bet) {
-        console.log(`🥺 Round [`, round, `] Sorry your friend`, [COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE], `didn't bet!`);
-        printSectionSeparator();
-        await getMostActiveUser();
+        printFriendInactivityMessage();
+        if(GLOBAL_CONFIG.USERS_ACTIVITY) {
+          await getMostActiveUser();
+        }     
       }
     }
   }
@@ -135,7 +142,6 @@ getSmartContract().on(EVENTS.LOCK_ROUND, async (epoch) => {
 //Listener on "Claim" event from {@PredictionGameSmartContract}
 getSmartContract().on(EVENTS.CLAIM_EVENT, async (sender, epoch, addedRewards) => {
   if (sender == process.env.PERSONAL_WALLET_ADDRESS) {
-    console.log(`🗿 Round [`, formatUnit(epoch), `] Successful claimed`, parseFromCryptoToUsd(parseFloat(formatEther(addedRewards), USD_DECIMAL)), 'USD =', fixedFloatNumber(parseFloat(formatEther(addedRewards)), CRYPTO_DECIMAL), getCrypto());
-    printSectionSeparator();
+    printClaimMessage(formatUnit(epoch), addedRewards);
   }
 });

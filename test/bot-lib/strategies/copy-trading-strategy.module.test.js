@@ -28,7 +28,7 @@ const mockGlobalConfigurationYesSimulation = {
     }
 };
 
-describe('BetStrategy - Module - Unit tests', () => {
+describe('Copy Trading Strategy - Module - Unit tests', () => {
 
     const epoch = ethers.BigNumber.from("1");
     const configurationUrl = "../../../bot-configuration/bot-configuration";
@@ -85,7 +85,7 @@ describe('BetStrategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleSuccessTx, 'betDown');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory').mockImplementation(() => Promise.resolve());
+        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
        
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betDownStrategy(epoch);
@@ -104,7 +104,7 @@ describe('BetStrategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betDown');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory').mockImplementation(() => Promise.resolve());
+        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betDownStrategy(epoch);
@@ -123,7 +123,7 @@ describe('BetStrategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleSuccessTx, 'betUp');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory').mockImplementation(() => Promise.resolve());
+        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betUpStrategy(epoch);
@@ -141,7 +141,7 @@ describe('BetStrategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betUp');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory').mockImplementation(() => Promise.resolve());
+        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betUpStrategy(epoch);
@@ -160,7 +160,7 @@ describe('BetStrategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betUp');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory').mockImplementation(() => Promise.resolve());
+        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betUpStrategy(epoch);
@@ -180,7 +180,7 @@ describe('BetStrategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betDown');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory').mockImplementation(() => Promise.resolve());
+        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betDownStrategy(epoch);
