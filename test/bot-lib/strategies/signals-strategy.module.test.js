@@ -4,18 +4,22 @@ const { CAKE_CRYPTO, BNB_CRYPTO, BET_UP, BET_DOWN } = require('../../../bot-lib/
 const mockGlobalConfigurationNoStrategy = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'CAKE',
-        SELECTED_STRATEGY: 'QUOTE_STRATEGY',   
+       
         BET_CONFIGURATION: {
             BET_AMOUNT: 10,
             DAILY_GOAL: 10,
             STOP_LOSS: 5
         },
-        STRATEGY_CONFIGURATION: {           
+        STRATEGY_CONFIGURATION: {    
+            SELECTED_STRATEGY: 'QUOTE_STRATEGY',          
             SIGNAL_STRATEGY: {           
                 THRESHOLD: 55,
                 DATASOURCE: "BINANCE",
                 REVERSE_BETTING: true
             }
+        },
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
         }
     }
 };
@@ -23,18 +27,25 @@ const mockGlobalConfigurationNoStrategy = {
 const mockGlobalConfiguration = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'BNB',
-        SELECTED_STRATEGY: 'SIGNAL_STRATEGY',
+       
         BET_CONFIGURATION: {
             BET_AMOUNT: 10,
             DAILY_GOAL: 10,
             STOP_LOSS: 5
         },
-        STRATEGY_CONFIGURATION: {           
+        STRATEGY_CONFIGURATION: {   
+            SELECTED_STRATEGY: 'SIGNAL_STRATEGY',        
             SIGNAL_STRATEGY: {           
                 THRESHOLD: 55,
                 DATASOURCE: "BINANCE",
                 REVERSE_BETTING: false
             },
+        },
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
+        },
+        ANALYTICS_CONFIGURATION: {
+            REGISTER_USERS_ACTIVITY: false
         }
     }
 };

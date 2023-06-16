@@ -6,9 +6,10 @@
 const { ethers } = require("ethers");
 const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
 const { BET_DOWN, BET_UP, COPY_TRADING_STRATEGY } = require("../common/constants/bot.constants");
-const { printSectionSeparator } = require("../common/print.module");
+const { printMostActiveUserMessage, evalString } = require("../common/print.module");
 const { saveRoundUsersInHistory, getUserActivityFromHistory, saveUserActivityInHistory } = require("../history/history.module");
 const { betDownStrategy, betUpStrategy } = require("./bet-strategy.module");
+const { CONSOLE_STRINGS } = require("../common/constants/strings.constants");
 const COPY_TRADING_STRATEGY_CONFIG = GLOBAL_CONFIG.STRATEGY_CONFIGURATION.COPY_TRADING_STRATEGY;
 
 /**
@@ -30,7 +31,7 @@ const roundUsers = new Map();
  */
 const executeBetDownCopyTradingStrategy = async (epoch, betRoundEvent) => {
     betRoundEvent.betExecuted = await betDownStrategy(epoch);
-    betRoundEvent.message = `🔮 Friend ${COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE} bet to DOWN 🔴`;
+    betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.COPYTRADING_BET_DOWN_MESSAGE, { friendAddress: COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE})
     betRoundEvent.bet = BET_DOWN;
     return betRoundEvent;
 }
@@ -46,7 +47,7 @@ const executeBetDownCopyTradingStrategy = async (epoch, betRoundEvent) => {
  */
 const executeBetUpCopyTradingStrategy = async (epoch, betRoundEvent) => {
     betRoundEvent.betExecuted = await betUpStrategy(epoch);
-    betRoundEvent.message = `🔮 Friend ${COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE} bet to UP 🟢`;
+    betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.COPYTRADING_BET_UP_MESSAGE, { friendAddress: COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE})
     betRoundEvent.bet = BET_UP;
     return betRoundEvent;
 }
@@ -58,7 +59,7 @@ const executeBetUpCopyTradingStrategy = async (epoch, betRoundEvent) => {
  * @returns {boolean}
  */
 const isCopyTradingStrategy = () => {
-    return GLOBAL_CONFIG.SELECTED_STRATEGY == COPY_TRADING_STRATEGY;
+    return GLOBAL_CONFIG.STRATEGY_CONFIGURATION.SELECTED_STRATEGY == COPY_TRADING_STRATEGY;
 };
 
 /**
@@ -130,8 +131,7 @@ const getMostActiveUser = async () => {
     const usersActivity = await getUserActivityFromHistory();
     const users = Object.keys(usersActivity);
     const activeUser = users.reduce((prev, current) => (usersActivity[prev].roundsPlayed > usersActivity[current].roundsPlayed) ? prev : current);
-    console.log("💻", "One of the most active players in the last rounds!", [activeUser], 'with:', usersActivity[activeUser].roundsPlayed, 'rounds played!');
-    printSectionSeparator();
+    printMostActiveUserMessage(activeUser, usersActivity[activeUser].roundsPlayed)
 }
 
 module.exports = {

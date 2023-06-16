@@ -4,16 +4,22 @@ const { BET_DOWN, BET_UP } = require('../../../bot-lib/common/constants/bot.cons
 const mockGlobalConfigurationHigherQuotes = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'CAKE',
-        SELECTED_STRATEGY: 'QUOTE_STRATEGY',
         BET_CONFIGURATION: {
             BET_AMOUNT: 10,
             DAILY_GOAL: 10,
             STOP_LOSS: 5
         },
-        STRATEGY_CONFIGURATION: {           
+        STRATEGY_CONFIGURATION: {     
+            SELECTED_STRATEGY: 'QUOTE_STRATEGY',      
             QUOTE_STRATEGY: {
                 SELECT_LOWER_QUOTE: false      
             }
+        },
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
+        },
+        ANALYTICS_CONFIGURATION: {
+            REGISTER_USERS_ACTIVITY: false
         }
     }
 };
@@ -21,16 +27,22 @@ const mockGlobalConfigurationHigherQuotes = {
 const mockGlobalConfigurationLowerQuotes = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'BNB',
-        SELECTED_STRATEGY: 'SIGNALS_STRATEGY',
         BET_CONFIGURATION: {
             BET_AMOUNT: 10,
             DAILY_GOAL: 10,
             STOP_LOSS: 5
         },
-        STRATEGY_CONFIGURATION: {           
+        STRATEGY_CONFIGURATION: {    
+            SELECTED_STRATEGY: 'SIGNALS_STRATEGY',       
             QUOTE_STRATEGY: {
                 SELECT_LOWER_QUOTE: true
             }
+        },
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
+        },
+        ANALYTICS_CONFIGURATION: {
+            REGISTER_USERS_ACTIVITY: false
         }
     }
 };

@@ -50,7 +50,7 @@ getSmartContract().on(EVENTS.START_ROUND_EVENT, async (epoch) => {
     pendingRoundEventStack.set(startRoundEvent.id, startRoundEvent);
     if (!isCopyTradingStrategy()) {
       //Wait some time, before closing the round in which bets can be placed, at least 10/20 seconds before closing.
-      await sleep(GLOBAL_CONFIG.WAITING_TIME - START_ROUND_WAITING_TIME);
+      await sleep(GLOBAL_CONFIG.STRATEGY_CONFIGURATION.WAITING_TIME - START_ROUND_WAITING_TIME);
       //Execute BET strategy
       const betRoundEvent = await executeBetStrategy(epoch)
       printBetRoundEvent(betRoundEvent);
@@ -81,7 +81,7 @@ getSmartContract().on(EVENTS.END_ROUND_EVENT, async (epoch, _roundId, cryptoClos
     printEndRoundEvent(endRoundEvent);
     printStatistics(statistics, pendingRoundEventStack);
     if (GLOBAL_CONFIG.SIMULATION_MODE) {
-      updateSimulationBalance(GLOBAL_CONFIG.SIMULATION_BALANCE + statistics.profit_usd - statistics.totalTxGasFeeUsd);
+      updateSimulationBalance(GLOBAL_CONFIG.SIMULATION_CONFIGURATION.SIMULATION_BALANCE + statistics.profit_usd - statistics.totalTxGasFeeUsd);
     }
   }
 });
@@ -92,7 +92,7 @@ getSmartContract().on(EVENTS.BET_BEAR_EVENT, async (sender, epoch, betAmount) =>
   const round = formatUnit(epoch);
   //Check if the round is registerd
   if (pendingRoundEventStack.get(round)) {
-    if(GLOBAL_CONFIG.USERS_ACTIVITY) {
+    if(GLOBAL_CONFIG.ANALYTICS_CONFIGURATION.REGISTER_USERS_ACTIVITY) {
       registerUser(round, sender, BET_DOWN, formatUnit(betAmount, "18"));
     } 
     if (isCopyTradingStrategy() && sender == COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE) {
@@ -108,7 +108,7 @@ getSmartContract().on(EVENTS.BET_BULL_EVENT, async (sender, epoch, betAmount) =>
   const round = formatUnit(epoch);
   //Check if the round is registerd
   if (pendingRoundEventStack.get(round)) {
-    if(GLOBAL_CONFIG.USERS_ACTIVITY) {
+    if(GLOBAL_CONFIG.ANALYTICS_CONFIGURATION.REGISTER_USERS_ACTIVITY) {
       registerUser(round, sender, BET_UP, formatUnit(betAmount, "18"));
     } 
     if (isCopyTradingStrategy() && sender == COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE) {
@@ -124,14 +124,14 @@ getSmartContract().on(EVENTS.LOCK_ROUND, async (epoch) => {
   const round = formatUnit(epoch);
   //Check if the round is registerd
   if (pendingRoundEventStack.get(round)) {
-    if(GLOBAL_CONFIG.USERS_ACTIVITY) {
+    if(GLOBAL_CONFIG.ANALYTICS_CONFIGURATION.REGISTER_USERS_ACTIVITY) {
       await handleUsersActivity(round);
     }  
     if (isCopyTradingStrategy()) {
       const roundEvent = pendingRoundEventStack.get(round);
       if (roundEvent && !roundEvent.bet) {
         printFriendInactivityMessage();
-        if(GLOBAL_CONFIG.USERS_ACTIVITY) {
+        if(GLOBAL_CONFIG.ANALYTICS_CONFIGURATION.REGISTER_USERS_ACTIVITY) {
           await getMostActiveUser();
         }     
       }

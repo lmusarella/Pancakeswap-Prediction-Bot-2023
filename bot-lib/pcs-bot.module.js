@@ -10,7 +10,7 @@ const { getRoundData, getMinBetAmount, getCurrentEpoch, setSmartContratConfig } 
 const { getStatisticFromHistory, getRoundsFromHistory, mergeRoundData } = require('./history/history.module');
 const { getSimulationBalance, updateSimulationBalance, getBNBBalance } = require('./wallet/wallet.module');
 const { getBinancePrice } = require('./external-data/binance.module');
-const { printWelcomeMessage, printGlobalSettings, printWalletInfo, printSectionSeparator, printStopBotMessage, printInitBotMessage, printStartBotMessage } = require('./common/print.module');
+const { printWelcomeMessage, printGlobalSettings, printWalletInfo, printSectionSeparator, printStopBotMessage, printInitBotMessage, printStartBotMessage, printCurrencyInfo } = require('./common/print.module');
 const { executeStrategyWithSignals, isSignalStrategy } = require('./strategies/signals-strategy.module');
 const { isQuoteStrategy, executeStrategyWithQuotes } = require('./strategies/quote-strategy.module');
 const { executeBetUpCopyTradingStrategy, executeBetDownCopyTradingStrategy } = require('./strategies/copytrading-strategy.module');
@@ -56,7 +56,7 @@ const checkGlobalConfiguration = () => {
     printSectionSeparator();
     stopBotCommand();
   }
-  if (!validBotStrategies.includes(GLOBAL_CONFIG.SELECTED_STRATEGY)) {
+  if (!validBotStrategies.includes(GLOBAL_CONFIG.STRATEGY_CONFIGURATION.SELECTED_STRATEGY)) {
     console.log(CONSOLE_STRINGS.ERROR_MESSAGE.CONFIG_VALID_STRATEGY, validBotStrategies);
     printSectionSeparator();
     stopBotCommand();
@@ -74,10 +74,11 @@ const startBotCommand = async () => {
   checkGlobalConfiguration();
   const currentEpoch = await initializeBotSettings();
   printWelcomeMessage();
+  printCurrencyInfo();
   printGlobalSettings();
   const actualUsdProfit = await getActualUsdProfit();
   if (actualUsdProfit) {
-    updateSimulationBalance(GLOBAL_CONFIG.SIMULATION_BALANCE + actualUsdProfit);
+    updateSimulationBalance(GLOBAL_CONFIG.SIMULATION_CONFIGURATION.SIMULATION_BALANCE + actualUsdProfit);
   }
   const balance = await getPersonalBalance();
   printWalletInfo(balance);

@@ -157,12 +157,12 @@ const betUp = async (amount, epoch) => {
     } else {
       return {
         status: 1,
-        gasUsed: GLOBAL_CONFIG.SIMULATE_ESTIMATE_GAS,
+        gasUsed: GLOBAL_CONFIG.SIMULATION_CONFIGURATION.SIMULATE_ESTIMATE_GAS,
         effectiveGasPrice: await getGasPrice()
       };
     }
   } catch (e) {
-    GLOBAL_CONFIG.WAITING_TIME = reduceWaitingTimeByTwoBlocks(GLOBAL_CONFIG.WAITING_TIME);
+    GLOBAL_CONFIG.STRATEGY_CONFIGURATION.WAITING_TIME = reduceWaitingTimeByTwoBlocks(GLOBAL_CONFIG.STRATEGY_CONFIGURATION.WAITING_TIME);
     printTransactionError(e, e.error, epoch);
     return { status: 0, transactionExeption: true };
   }
@@ -185,12 +185,12 @@ const betDown = async (amount, epoch) => {
     } else {
       return {
         status: 1,
-        gasUsed: GLOBAL_CONFIG.SIMULATE_ESTIMATE_GAS,
+        gasUsed: GLOBAL_CONFIG.SIMULATION_CONFIGURATION.SIMULATE_ESTIMATE_GAS,
         effectiveGasPrice: await getGasPrice()
       };
     }
   } catch (e) {
-    GLOBAL_CONFIG.WAITING_TIME = reduceWaitingTimeByTwoBlocks(GLOBAL_CONFIG.WAITING_TIME);
+    GLOBAL_CONFIG.STRATEGY_CONFIGURATION.WAITING_TIME = reduceWaitingTimeByTwoBlocks(GLOBAL_CONFIG.STRATEGY_CONFIGURATION.WAITING_TIME);
     printTransactionError(e, e.error, epoch);
     return { status: 0, transactionExeption: true };
   }

@@ -56,7 +56,7 @@ const betUpStrategy = async (epoch) => {
  * @returns {{ status: Number, txGasFee: Number, transactionExeption: Boolean}} - claim transaction data
  */
 const claimStrategy = async (epoch) => {
-    if(GLOBAL_CONFIG.CLAIM_REWARDS && await isClaimableRound(epoch)) {
+    if(GLOBAL_CONFIG.STRATEGY_CONFIGURATION.CLAIM_REWARDS && await isClaimableRound(epoch)) {
         return await claimRewards([epoch]);
     } else {
         return { status: 0, txGasFee: 0};

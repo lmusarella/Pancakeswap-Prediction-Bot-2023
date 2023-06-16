@@ -51,7 +51,7 @@ const signer = wallet.connect(provider);
  * @type {{ FAKE_BALANCE: number; }}
  */
 const SIMULATION = {
-  FAKE_BALANCE: GLOBAL_CONFIG.SIMULATION_BALANCE
+  FAKE_BALANCE: GLOBAL_CONFIG.SIMULATION_CONFIGURATION.SIMULATION_BALANCE
 };
 
 /**

@@ -1,4 +1,9 @@
 const CONSOLE_STRINGS = {
+    YES: "✔️ ",
+    NO: "❌",
+    USD: "USD",
+    EQUAL: "=",
+    STOP_ICON: "⛔",
     ERROR_MESSAGE: {
         STOP_LOSS_GOAL: "Stop Loss or Daily Goal reached!",
         BALANCE_NOT_ENOUGH: "Your balance is not enough! Check your BET_AMOUNT and SmartContract MinBetAmount!",
@@ -6,7 +11,10 @@ const CONSOLE_STRINGS = {
         CONFIG_VALID_STRATEGY: "🚨 Select a valid strategy [bot-configuration.js][SELECTED_STRATEGY] =>",
         BAD_REPONSE_API: "Bad response from server",
         NO_CONNECTION_BINANCE_API: "Unable to connect to Binance API",
-        ERROR_PARSE_JSON_FILE: "Error reading contentJsonFile:"
+        ERROR_PARSE_JSON_FILE: "Error reading contentJsonFile:",
+        BET_NOT_EXECUTED: "⛔ Bet not executed! Transaction Error!",
+        CLAIM_TRANSACTION_ERR: "⛔ Claim Transaction Error!",
+        TRANSACTION_EXE: "⛔ Transaction Error [{time}][{round}][{errorCode}} ] =>"
     },
     WARNING_MESSAGE: {
         INCONSISTENT_QUOTAS: "Inconsistent quotas from smart contract",
@@ -18,37 +26,80 @@ const CONSOLE_STRINGS = {
         INIT_BOT: "🟡 BOT INITIALIZING...",
         START_BOT: "🟢 BOT STARTED",
         STOP_BOT: "🔴 BOT STOPPED",
-        WELCOME_MESSAGE: "🤗 WELCOME ON {crypto}-USDT PREDICTION GAME BOT!",
-        WAITING_NEXT_ROUND: "⏰ Waiting for next round:",
+        WAITING_NEXT_ROUND: "⏰ Waiting for next round: {nextRound}",
+        MOST_ACTIVE_USER_MESSAGE: "💻 One of the most active players in the last rounds! [{user}] with: {roundPlayed} rounds played!",
         CURRENT_QUOTE_MESSAGE: "⬆️  BullPayout {bullPayout}x - ⬇️  BearPayout {bearPayout}x",
         SIGNAL_UP_MESSAGE: "🔮 Signal Prediction: UP 🟢 {percentage} %",
         SIGNAL_DOWN_MESSAGE: "🔮 Signal Prediction: DOWN 🔴 {percentage} %",
-        COPYTRADING_BET_UP_MESSAGE: "",
-        COPYTRADING_BET_DOWN_MESSAGE: "",
-        MOST_ACTIVE_USER_MESSAGE: ""
+        COPYTRADING_BET_UP_MESSAGE: "🔮 Friend {friendAddress} bet to UP 🟢",
+        COPYTRADING_BET_DOWN_MESSAGE: "🔮 Friend {friendAddress} bet to DOWN 🔴",
+        CLAIM_MESSAGE: "🗿 Round [{round}] Successful claimed {usd} USD = {crypto} {cryptoCurrency}",
+        INACTIVITY_USER_MESSAGE: "🥺 Round [{round}] Sorry your friend [{friendAddress}] didn't bet!",
+        SKIP_MESSAGE: "♻️  Skip: {message}",
+        SKIP_ROUND_MESSAGE: "♻️  Skip round: {round}",
+        MARTINGALE_MODE_MESSAGE: "🚨 Bot is running in Martingale Mode! Waiting pending rounds: [{rounds}]",
+        BOT_STOPPING_MESSAGE: "🚨 Bot is stopping! Waiting pending rounds: [{rounds}]",
+        WAITING_STRATEGY_MESSAGE: "⏰ Waiting {minutes} minutes before execute strategy"
     },
     TEMPLATES: {
         UTILS: {
             LOG_SECTION_SEPARATOR: "====================================================================",
             LOG_SUB_SECTION_SEPARATOR: "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ",
-            SPACE: " "
+            SPACE: " ",
+            EMPTY: ""
         },
         COPYRIGHT: {
-            FIRST: "Copyright (c) 2023 l.musarella",
-            SECOND: "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to  permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.",
-            THIRD: "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE"
+            FIRST_LINE: "Copyright (c) 2023 l.musarella",
+            SECOND_LINE: "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to  permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.",
+            THIRD_LINE: "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE"
+        },
+        WELCOME_MESSAGE: {
+            FIRST_LINE: "🤗 WELCOME ON {crypto}-USDT PREDICTION GAME BOT!"
         },
         START_ROUND_EVENT: {
-
+            HEADER: "⚔️  ROUND: {round} | {time} | START 🎉",
+            BALANCE: "Current Balance:",
+            PROFIT: "Current Profit:"
         },
         BET_ROUND_EVENT: {
-
+            HEADER: "⚔️  ROUND: {round} | {time} | BET 🎲",
+            BET_EXECUTED: "✔️  Successful bet",
+            BET_UP: "UP 🟢",
+            BET_DOWN: "DOWN 🔴"           
         },
         END_ROUND_EVENT: {
-
+            HEADER: "⚔️  ROUND: {round} | {time} | END 🏁",           
+            BET_TAX: "⛽ Bet Tx Fee:",
+            CLAIM_TAX: "⛽ Claim Tx Fee:",
+            WIN: "👍 Won:",
+            LOSS: "👎 Lost:",
+            PROFIT: "📈 Bet Profit: {profit} % of Bet Amount",
+            CLAIM_EXECUTED: "✔️  Rewards Claimed",
+            CLAIM_NOT_EXECUTED: "❌ Rewards Claimed"      
         },
         STATISTICS: {
-
+            HEADER: "📊 BETTING STATISTICS [ ✔️  Executed {executed} | ⏳ Pending {betPending} | ⛔ Errors {betErrors} ]",
+            FORTUNE: "🍀 Fortune: {fortune} %",
+            WIN_LOSS: "👍 {win}|{loss} 👎",
+            NO_FEE: "(fees excluded)",
+            PROFIT: "💰 Profit:",
+            FEES: "⛽ Total Fees:"
+        },
+        GLOBAL_SETTINGS: {
+            HEADER: "⚙️  GLOBAL SETTINGS",
+            BOT_STRATEGY: "▫️ Bot Strategy:",
+            COPY_TRADE_ADDRES: "▫️ Copy Target Address:",
+            SIMULATION_MODE: "▫️ Simulation Mode:",
+            CLAIM_MODE: "▫️ Auto Claim:",
+            MARTINGALE: "▫️ Martingale:",
+            BET_AMOUNT: "▫️ Bet Amount:",
+            DAILY_GOAL: "▫️ Daily Goal:",
+            STOP_LOSS: "▫️ Stop Loss:",
+        },
+        WALLET_INFO: {
+            HEADER: "💻 WALLET",
+            ADDRESS: "▫️ Address:",
+            BALANCE: "▫️ Balance:"
         }
     }
 }

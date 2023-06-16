@@ -3,13 +3,20 @@ const { ethers } = require('ethers');
 const mockGlobalConfigurationNoSimulation = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'CAKE',
-        CLAIM_REWARDS: false,
         SIMULATION_MODE: false,
-        SIMULATION_BALANCE: 25,  
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
+        }, 
         BET_CONFIGURATION: {
             BET_AMOUNT: 10,
             DAILY_GOAL: 10,
             STOP_LOSS: 5
+        },
+        STRATEGY_CONFIGURATION: {
+            CLAIM_REWARDS: false,
+        },
+        ANALYTICS_CONFIGURATION: {
+            REGISTER_USERS_ACTIVITY: false
         }
     }
 };
@@ -17,13 +24,20 @@ const mockGlobalConfigurationNoSimulation = {
 const mockGlobalConfigurationYesSimulation = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'CAKE',
-        CLAIM_REWARDS: true,
         SIMULATION_MODE: true,
-        SIMULATION_BALANCE: 25,  
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
+        },  
         BET_CONFIGURATION: {
             BET_AMOUNT: 10,
             DAILY_GOAL: 10,
             STOP_LOSS: 5
+        },
+        STRATEGY_CONFIGURATION: {
+            CLAIM_REWARDS: true,
+        },
+        ANALYTICS_CONFIGURATION: {
+            REGISTER_USERS_ACTIVITY: false
         }
     }
 };

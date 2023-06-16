@@ -3,9 +3,14 @@ const { ethers } = require("ethers");
 const mockGlobalConfiguration = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'CAKE',
-        SIMULATION_BALANCE: 25,  
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
+        }, 
         BET_CONFIGURATION: {
             BET_AMOUNT: 10
+        },
+        ANALYTICS_CONFIGURATION: {
+            REGISTER_USERS_ACTIVITY: false
         }
     }
 };

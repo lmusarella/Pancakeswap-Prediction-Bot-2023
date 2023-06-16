@@ -48,7 +48,7 @@ const executeStrategyWithQuotes = async (epoch, betRoundEvent) => {
  * @returns {boolean}
  */
 const isQuoteStrategy = () => {
-  return GLOBAL_CONFIG.SELECTED_STRATEGY == QUOTE_STRATEGY;
+  return GLOBAL_CONFIG.STRATEGY_CONFIGURATION.SELECTED_STRATEGY == QUOTE_STRATEGY;
 };
 
 module.exports = {

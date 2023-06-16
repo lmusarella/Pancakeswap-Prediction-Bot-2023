@@ -51,7 +51,7 @@ const executeStrategyWithSignals = async (epoch, betRoundEvent) => {
  * @returns {boolean}
  */
 const isSignalStrategy = () => {
-    return GLOBAL_CONFIG.SELECTED_STRATEGY == SIGNAL_STRATEGY;
+    return GLOBAL_CONFIG.STRATEGY_CONFIGURATION.SELECTED_STRATEGY == SIGNAL_STRATEGY;
 };
 
 /**
