@@ -5,19 +5,19 @@
  */
 const _ = require("lodash");
 const { BET_UP } = require("../common/constants/bot.constants");
-const { writeOrUpdateFile, getFileJsonContent, percentageChange, getCrypto, parseFromCryptoToUsd, parseFeeFromCryptoToUsd } = require('../common/utils.module');
+const { writeOrUpdateFile, getFileJsonContent, percentageChange, getCrypto, parseFromCryptoToUsd, parseFeeFromCryptoToUsd, createDir, getStringDate, deleteFile } = require('../common/utils.module');
 
 
 /**
- * History files name definition
+ * files name definition
  * @date 4/25/2023 - 3:53:02 PM
  *
  * @type {string}
  */
-const ROUND_HISTORY_FILENAME = `${getCrypto().toLowerCase()}-game/rounds-${getCrypto().toLowerCase()}-history`;
-const STATISTICS_FILENAME = `${getCrypto().toLowerCase()}-game/statistics-${getCrypto().toLowerCase()}-history`;
-const ROUNDS_USERS__FILENAME = `${getCrypto().toLowerCase()}-game/rounds-${getCrypto().toLowerCase()}-users`;
-const USERS_ACTIVITY_FILENAME = `${getCrypto().toLowerCase()}-game/users-${getCrypto().toLowerCase()}-activity`;
+const ROUND_HISTORY_FILENAME = `${getCrypto().toLowerCase()}-game/rounds-data/rounds-played-history`;
+const ALL_ROUND_HISTORY_FILENAME = `${getCrypto().toLowerCase()}-game/rounds-data/rounds-history`;
+const STATISTICS_FILENAME = `${getCrypto().toLowerCase()}-game/statistics-data/statistics-history`;
+const USERS_ACTIVITY_FILENAME = `${getCrypto().toLowerCase()}-game/users-data/users-activity`;
 
 /**
  * inherit
@@ -39,20 +39,6 @@ const generateFilePath = (fileName) => {
  */
 const getFilePath = (fileName) => {
   return `./bot-history/${fileName}.json`;
-};
-
-/**
- * Generate the path of user data and save/update the file with the usersData
- * @date 4/25/2023 - 3:53:01 PM
- *
- * @async
- * @param {any} usersData - util user data to save
- * @param {boolean} forceUpdate - force overwriting of all the content
- * @returns {any} - file content
- */
-const saveRoundUsersInHistory = async (usersData, forceUpdate) => {
-  const path = generateFilePath(ROUNDS_USERS__FILENAME);
-  return forceUpdate ? writeOrUpdateFile(path, usersData) : await saveRoundDataInHistory(path, usersData);
 };
 
 /**
@@ -86,12 +72,11 @@ const saveRoundDataInHistory = async (path, newData) => {
  *
  * @async
  * @param {any} roundData - util round data
- * @param {boolean} forceUpdate force overwriting of all the content
  * @returns {any} - file content
  */
-const saveRoundInHistory = async (roundData, forceUpdate) => {
-  const path = generateFilePath(ROUND_HISTORY_FILENAME);
-  return forceUpdate ? writeOrUpdateFile(path, roundData) : await saveRoundDataInHistory(path, roundData)
+const saveRoundInHistory = async (roundData, fileName) => {
+  const path = generateFilePath(fileName ? fileName : ROUND_HISTORY_FILENAME);
+  return await saveRoundDataInHistory(path, roundData);
 };
 
 /**
@@ -101,8 +86,8 @@ const saveRoundInHistory = async (roundData, forceUpdate) => {
  * @async
  * @returns {any} - file content
  */
-const getRoundsFromHistory = async () => {
-  const path = generateFilePath(ROUND_HISTORY_FILENAME);
+const getRoundsFromHistory = async (fileName) => {
+  const path = generateFilePath(fileName ? fileName : ROUND_HISTORY_FILENAME);
   const roundsHistory = await getFileJsonContent(path);
   return roundsHistory;
 }
@@ -188,6 +173,46 @@ const mergeRoundData = (roundsDataParsed, newRoundData) => {
 }
 
 /**
+ * Create a backup folder and save the current history
+ * @date 4/25/2023 - 3:53:01 PM
+ *
+ */
+const backUpFilesHistory = async () => {
+    const dirPath = `./bot-history/${getCrypto().toLowerCase()}-game/backup/${getStringDate()}-backup/`;
+
+    const exist = createDir(dirPath);
+
+    if(!exist) {
+      return;
+    }
+    
+    const roundPlayedHistory = await getRoundsFromHistory();
+    const allRoundsHistory = await getRoundsFromHistory(ALL_ROUND_HISTORY_FILENAME);
+    const statistics = await getStatisticFromHistory();
+    const usersActivity = await getUserActivityFromHistory();
+
+    if(roundPlayedHistory)
+    writeOrUpdateFile(dirPath + "rounds-played.json", roundPlayedHistory);
+    if(allRoundsHistory)
+    writeOrUpdateFile(dirPath + "all-rounds.json", allRoundsHistory);
+    if(statistics)
+    writeOrUpdateFile(dirPath + "statistics.json", statistics);
+    if(usersActivity && Object.keys(usersActivity).length)
+    writeOrUpdateFile(dirPath + "user-activity.json", usersActivity);
+}
+/**
+ * Delete the current history
+ * @date 4/25/2023 - 3:53:01 PM
+ *
+ */
+const resetFilesHistory = () => {
+    deleteFile(generateFilePath(ROUND_HISTORY_FILENAME));
+    deleteFile(generateFilePath(STATISTICS_FILENAME));
+    deleteFile(generateFilePath(USERS_ACTIVITY_FILENAME));
+    deleteFile(generateFilePath(ALL_ROUND_HISTORY_FILENAME));
+}
+
+/**
  * Calculate end-of-round stats, taking in all previous rounds. By calculating profits, losses, wins and fees spent and other data
  * @date 4/25/2023 - 3:53:01 PM
  *
@@ -235,14 +260,16 @@ const generateNewStatistics = (roundHistoryData) => {
 }
 
 module.exports = {
+  ALL_ROUND_HISTORY_FILENAME,
   generateFilePath,
   mergeRoundData,
   saveRoundInHistory,
-  saveRoundUsersInHistory,
   getRoundUsersFromHistory,
   getRoundsFromHistory,
   saveStatisticsInHistory,
   getStatisticFromHistory,
   saveUserActivityInHistory,
-  getUserActivityFromHistory
+  getUserActivityFromHistory,
+  backUpFilesHistory,
+  resetFilesHistory
 };

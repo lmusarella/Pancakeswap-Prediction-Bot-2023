@@ -33,10 +33,16 @@ const executeStrategyWithQuotes = async (epoch, betRoundEvent) => {
   betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.CURRENT_QUOTE_MESSAGE, { bullPayout: betRoundEvent.bullPayout, bearPayout: betRoundEvent.bearPayout });
   if (QUOTE_STRATEGY_CONFIG.SELECT_LOWER_QUOTE) {
     betRoundEvent.bet = roundData.bullPayout > roundData.bearPayout ? BET_DOWN : BET_UP;
-    betRoundEvent.betExecuted = roundData.bullPayout > roundData.bearPayout ? await betDownStrategy(epoch) : await betUpStrategy(epoch);
+    const txReceipt = roundData.bullPayout > roundData.bearPayout ? await betDownStrategy(epoch) : await betUpStrategy(epoch);
+    betRoundEvent.betExecuted = txReceipt.betExecuted;
+    betRoundEvent.betAmount = txReceipt.betAmount;
+    betRoundEvent.txGasFee = txReceipt.txGasFee;
   } else {
     betRoundEvent.bet = roundData.bullPayout > roundData.bearPayout ? BET_UP : BET_DOWN;
-    betRoundEvent.betExecuted = roundData.bullPayout > roundData.bearPayout ? await betUpStrategy(epoch) : await betDownStrategy(epoch);
+    const txReceipt = roundData.bullPayout > roundData.bearPayout ? await betUpStrategy(epoch) : await betDownStrategy(epoch);
+    betRoundEvent.betExecuted = txReceipt.betExecuted;
+    betRoundEvent.betAmount = txReceipt.betAmount;
+    betRoundEvent.txGasFee = txReceipt.txGasFee;
   }
   return betRoundEvent;
 };

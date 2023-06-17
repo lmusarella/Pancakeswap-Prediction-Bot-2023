@@ -250,8 +250,33 @@ const percentageChange = (a, b) => {
  * @returns {any}
  */
 const writeOrUpdateFile = (path, jsonFileContent) => {
-  fs.writeFileSync(path, JSON.stringify(jsonFileContent), "utf8");
+  fs.writeFileSync(path, JSON.stringify(jsonFileContent, null, "\t"), "utf8");
   return jsonFileContent;
+}
+
+/**
+ * Create a folder
+ * @date 4/25/2023 - 3:36:11 PM
+ *
+ * @param {String} dir
+ */
+const createDir = (dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Delete a specific file
+ * @date 4/25/2023 - 3:36:11 PM
+ *
+ * @param {String} dir
+ */
+const deleteFile = (path) => {
+  fs.unlink(path, function(){});  
 }
 
 /**
@@ -312,9 +337,15 @@ const parseRoundDataFromSmartContract = (round, data) => {
     bullPayout: bullPayout,
     bearPayout: bearPayout,
     validQuotes: validQuotes,
+    totalAmount: formatUnit(data.totalAmount, "18"),
     winner: closePrice.gt(lockPrice) ? BET_UP : BET_DOWN
   };
 }
+
+const getStringDate = () => {
+  const date = new Date()
+  return `${date.getTime()}`;
+};
 
 module.exports = {
   formatEther,
@@ -326,6 +357,7 @@ module.exports = {
   percentage,
   percentageChange,
   writeOrUpdateFile,
+  createDir,
   getFileJsonContent,
   parseBetAmount,
   fixedFloatNumber,
@@ -339,5 +371,7 @@ module.exports = {
   setCryptoFeeUsdPrice,
   updateCryptoUsdPriceFromSmartContract,
   getBetAmount,
-  setBetAmount
+  setBetAmount,
+  getStringDate,
+  deleteFile
 };

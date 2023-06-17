@@ -100,7 +100,7 @@ const getCurrentEpoch = async () => {
  *
  * @async
  * @param {Number | ethers.BigNumber} round
- * @returns {{round: Number, openPrice: Number, closePrice: Number, bullAmount: Number, bearAmount: Number, bullPayout: Number, bearPayout: Number, validQuotes: Boolean, winner: String}}
+ * @returns {{round: Number, openPrice: Number, closePrice: Number, bullAmount: Number, bearAmount: Number, bullPayout: Number, bearPayout: Number, validQuotes: Boolean, winner: String, betAmount: Number,bet: String,betExecuted: Booleantrue, txGasFee: Number}}
  */
 const getRoundData = async (round) => {
   return parseRoundDataFromSmartContract(round, await getSmartContract().rounds(round));

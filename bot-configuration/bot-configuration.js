@@ -20,7 +20,19 @@ const GLOBAL_CONFIG = {
          * @default false
          * @type {boolean}
          */
-        REGISTER_USERS_ACTIVITY: false,
+        REGISTER_USERS_ACTIVITY: true,
+        /**
+         * Flag which enables to save all rounds data
+         * @default false
+         * @type {boolean}
+         */
+        REGISTER_ALL_ROUNDS_DATA: true,
+         /**
+         * Flag which enables to save current bot-history data in backup folders e and clean the previus data folders for new bot run cicle
+         * @default false
+         * @type {boolean}
+         */
+        RESET_AND_BACKUP_BOT_HISTORY: true
     },
     SIMULATION_CONFIGURATION: {
         /**
@@ -67,7 +79,7 @@ const GLOBAL_CONFIG = {
              * @default false
              * @type {boolean}
              */
-            ANTI_MARTINGALE: false, 
+            ANTI_MARTINGALE: true, 
              /**
              * INCREMENT_BET_AMOUNT x BET_AMOUNT = NEW BET_AMOUNT after loss or win (based on ANTI_MARTINGALE flag)
              * @default 2
@@ -82,12 +94,12 @@ const GLOBAL_CONFIG = {
          * - SIGNAL_STRATEGY: get trading signals from TradingViewScan and use recommended signal for UP or DOWN prediction
          * - QUOTE_STRATEGY: chose the lower or the highiest quote from PCS smart-contract payout quote for UP or DOWN prediction
          * - COPY_TRADING_STRATEGY: copy an address bet operations (Bet Bull or Bet Bear) on PCS game prediction
-         * @values SIGNAL_STRATEGY | QUOTE_STRATEGY | COPY_TRADING_STRATEGY
+         * @values SIGNAL_STRATEGY | QUOTE_STRATEGY | COPY_TRADING_STRATEGY | PATTERN_STRATEGY
          * @mandatory
          * @default SIGNAL_STRATEGY
          * @type {string}
          */
-        SELECTED_STRATEGY: 'SIGNAL_STRATEGY',
+        SELECTED_STRATEGY: 'PATTERN_STRATEGY',
         /**
          * Time after execute bet strategy when start a new round.
          * @default 265000 in Miliseconds (4.3 Minutes)
@@ -134,7 +146,22 @@ const GLOBAL_CONFIG = {
              * @type {string}
              */
             WALLET_ADDRESS_TO_EMULATE: '0xe25E5Db92Ad947c89015f085fD830823F3cF2fB8'
-        }
+        },
+        PATTERN_STRATEGY: {
+            /**
+            * Defines the number of previous rounds having the same outcome, the bot will bet the next round towards the opposite sign.     
+            * @type {number}
+            */
+           EVENT_PATTERN_NUMBER: 2,
+            /**
+            * To more accurately predict the outcome of the round that is about to end, a larger price difference will be statistically easier to predict. 
+            * So define your threshold and only if respected the correct round will be considered in the pattern. 
+            * Example: If when I retrieve the current price and the difference with the opening price is 0.3 or -0.3 it will be more likely to respect the outcome than a difference of 0.003 or -0.003.
+            * However, if during the last few seconds the volatility is high, you can increase the WAITING_TIME parameter  
+            * @type {number}
+            */
+           DELTA_PRICE_THRESHOLD: 0.2
+       }
     }
 };
 

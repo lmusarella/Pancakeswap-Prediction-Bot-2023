@@ -4,10 +4,10 @@
  * @author luca.musarella
  */
 const { GLOBAL_CONFIG } = require("../bot-configuration/bot-configuration");
-const { BET_UP, CRYPTO_DECIMAL, BNB_CRYPTO, CAKE_CRYPTO, SIGNAL_STRATEGY, QUOTE_STRATEGY, COPY_TRADING_STRATEGY } = require("./common/constants/bot.constants");
+const { BET_UP, CRYPTO_DECIMAL, BNB_CRYPTO, CAKE_CRYPTO, SIGNAL_STRATEGY, QUOTE_STRATEGY, COPY_TRADING_STRATEGY, PATTERN_STRATEGY } = require("./common/constants/bot.constants");
 const { fixedFloatNumber, parseFromUsdToCrypto, setCryptoUsdPrice, formatUnit, getCrypto, setCryptoFeeUsdPrice, setBetAmount, getBetAmount } = require('./common/utils.module');
 const { getRoundData, getMinBetAmount, getCurrentEpoch, setSmartContratConfig } = require('./smart-contracts/pcs-prediction-smart-contract.module');
-const { getStatisticFromHistory, getRoundsFromHistory, mergeRoundData } = require('./history/history.module');
+const { getStatisticFromHistory, saveRoundInHistory, ALL_ROUND_HISTORY_FILENAME, backUpFilesHistory, resetFilesHistory} = require('./history/history.module');
 const { getSimulationBalance, updateSimulationBalance, getBNBBalance } = require('./wallet/wallet.module');
 const { getBinancePrice } = require('./external-data/binance.module');
 const { printWelcomeMessage, printGlobalSettings, printWalletInfo, printSectionSeparator, printStopBotMessage, printInitBotMessage, printStartBotMessage, printCurrencyInfo } = require('./common/print.module');
@@ -19,6 +19,7 @@ const { claimStrategy } = require("./strategies/bet-strategy.module");
 const { getCakeBalance } = require("./smart-contracts/cake-token-smart-contract.module");
 const { ethers } = require("ethers");
 const { CONSOLE_STRINGS } = require("./common/constants/strings.constants");
+const { isPatternStrategy, executeStrategyWithPatterns } = require("./strategies/pattern-strategy.module");
 
 
 /**
@@ -50,7 +51,7 @@ const initializeBotSettings = async () => {
  */
 const checkGlobalConfiguration = () => {
   const validCryptoGames = [BNB_CRYPTO, CAKE_CRYPTO];
-  const validBotStrategies = [SIGNAL_STRATEGY, QUOTE_STRATEGY, COPY_TRADING_STRATEGY];
+  const validBotStrategies = [SIGNAL_STRATEGY, QUOTE_STRATEGY, COPY_TRADING_STRATEGY, PATTERN_STRATEGY];
   if (!validCryptoGames.includes(GLOBAL_CONFIG.PCS_CRYPTO_SELECTED)) {
     console.log(CONSOLE_STRINGS.ERROR_MESSAGE.CONFIG_VALID_GAME, validCryptoGames);
     printSectionSeparator();
@@ -73,6 +74,12 @@ const startBotCommand = async () => {
   printInitBotMessage();
   checkGlobalConfiguration();
   const currentEpoch = await initializeBotSettings();
+
+  if(GLOBAL_CONFIG.ANALYTICS_CONFIGURATION.RESET_AND_BACKUP_BOT_HISTORY) {
+    await backUpFilesHistory();
+    resetFilesHistory();
+  }
+
   printWelcomeMessage();
   printCurrencyInfo();
   printGlobalSettings();
@@ -108,6 +115,8 @@ const executeBetStrategy = async (epoch) => {
     return await executeStrategyWithSignals(epoch, betRoundEvent);
   } else if (isQuoteStrategy()) {
     return await executeStrategyWithQuotes(epoch, betRoundEvent);
+  } else if(isPatternStrategy()) {
+    return await executeStrategyWithPatterns(epoch, betRoundEvent);
   } else {
     betRoundEvent.skipRound = true;
     betRoundEvent.message = CONSOLE_STRINGS.WARNING_MESSAGE.STRATEGY_NOT_EXECUTE;
@@ -250,14 +259,16 @@ const getPersonalBalance = async () => {
  *
  * @async
  * @param {ethers.BigNumber} epoch - round
+ * @param {any} betEvent - betEvent data
  * @returns {any} - last round data from history
  */
-const getEndRoundData = async (epoch) => {
+const getEndRoundData = async (epoch, betEvent) => {
   const endRoundData = await getRoundData(epoch);
-  const roundsHistoryData = await getRoundsFromHistory();
-  const mergedRoundsHistory = mergeRoundData(roundsHistoryData, [endRoundData]);
-  const lastRoundIndex = mergedRoundsHistory.findIndex(round => round.round === formatUnit(epoch));
-  return mergedRoundsHistory[lastRoundIndex];
+  endRoundData.bet = betEvent.bet;
+  endRoundData.betAmount = betEvent.betAmount;
+  endRoundData.betExecuted = betEvent.betExecuted;
+  endRoundData.txGasFee = betEvent.txGasFee;
+  return endRoundData;
 }
 
 /**
@@ -297,6 +308,18 @@ const createEndRoundEvent = async (lastRound, epoch) => {
   };
 }
 
+/**
+ * Save round data
+ * @date 4/25/2023 - 4:34:23 PM
+ *
+ * @async
+ * @param {Number} round - current round
+ */
+const handleRoundResult = async (round) => {
+    const roundData = await getRoundData(round);
+    return await saveRoundInHistory([roundData], ALL_ROUND_HISTORY_FILENAME);
+}
+
 module.exports = {
   stopBotCommand,
   startBotCommand,
@@ -306,5 +329,6 @@ module.exports = {
   executeBetDownStrategy,
   createStartRoundEvent,
   createBetRoundEvent,
-  createEndRoundEvent
+  createEndRoundEvent,
+  handleRoundResult
 };

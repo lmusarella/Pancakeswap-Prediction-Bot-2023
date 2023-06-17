@@ -4,6 +4,8 @@ const CONSOLE_STRINGS = {
     USD: "USD",
     EQUAL: "=",
     STOP_ICON: "⛔",
+    GREATER: "greater",
+    LESS: "less",
     ERROR_MESSAGE: {
         STOP_LOSS_GOAL: "Stop Loss or Daily Goal reached!",
         BALANCE_NOT_ENOUGH: "Your balance is not enough! Check your BET_AMOUNT and SmartContract MinBetAmount!",
@@ -39,7 +41,12 @@ const CONSOLE_STRINGS = {
         SKIP_ROUND_MESSAGE: "♻️  Skip round: {round}",
         MARTINGALE_MODE_MESSAGE: "🚨 Bot is running in Martingale Mode! Waiting pending rounds: [{rounds}]",
         BOT_STOPPING_MESSAGE: "🚨 Bot is stopping! Waiting pending rounds: [{rounds}]",
-        WAITING_STRATEGY_MESSAGE: "⏰ Waiting {minutes} minutes before execute strategy"
+        WAITING_STRATEGY_MESSAGE: "⏰ Waiting {minutes} minutes before execute {strategy}",
+        EVENT_PATTERN_NOT_FOUND: "No pattern found. No event {event} repeated {n} times",
+        EVENT_NOT_PREDICTABLE: "Previous Rounds's {round} Event not predictable - the absolute difference price {difference} does not reach the threshold: {threshold}",
+        PATTERN_STATEGY_BET_MESSAGE: "🔮 The previous round {previous} is very likely to end with the following outcome: {res}",
+        PATTERN_STATEGY_PRICE_MESSAGE: "⚖️ Current price: {currentPrice} is {current} than open price: {openPrice}, price difference: {difference}, it seems that the pattern is respected, {res} event repeated {numberEvent} times!"
+   
     },
     TEMPLATES: {
         UTILS: {
@@ -75,7 +82,7 @@ const CONSOLE_STRINGS = {
             LOSS: "👎 Lost:",
             PROFIT: "📈 Bet Profit: {profit} % of Bet Amount",
             CLAIM_EXECUTED: "✔️  Rewards Claimed",
-            CLAIM_NOT_EXECUTED: "❌ Rewards Claimed"      
+            CLAIM_NOT_EXECUTED: "❌ NO Rewards"      
         },
         STATISTICS: {
             HEADER: "📊 BETTING STATISTICS [ ✔️  Executed {executed} | ⏳ Pending {betPending} | ⛔ Errors {betErrors} ]",
@@ -92,9 +99,14 @@ const CONSOLE_STRINGS = {
             SIMULATION_MODE: "▫️ Simulation Mode:",
             CLAIM_MODE: "▫️ Auto Claim:",
             MARTINGALE: "▫️ Martingale:",
+            ANTI_MARTINGALE: "▫️ Anti-Martingale:",
             BET_AMOUNT: "▫️ Bet Amount:",
             DAILY_GOAL: "▫️ Daily Goal:",
+            INCREMENT_BET_AMOUNT: "▫️ Increment Bet Amount:",
             STOP_LOSS: "▫️ Stop Loss:",
+            REGISTER_USERS: "▫️ Track Users Activity:",
+            REGISTER_ROUNDS: "▫️ Track All Rounds:",
+            RESET_HISTORY_BACKUP: "▫️ Reset & Backup History:",
         },
         WALLET_INFO: {
             HEADER: "💻 WALLET",

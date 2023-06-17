@@ -7,7 +7,7 @@ const { ethers } = require("ethers");
 const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
 const { BET_DOWN, BET_UP, COPY_TRADING_STRATEGY } = require("../common/constants/bot.constants");
 const { printMostActiveUserMessage, evalString } = require("../common/print.module");
-const { saveRoundUsersInHistory, getUserActivityFromHistory, saveUserActivityInHistory } = require("../history/history.module");
+const { getUserActivityFromHistory, saveUserActivityInHistory } = require("../history/history.module");
 const { betDownStrategy, betUpStrategy } = require("./bet-strategy.module");
 const { CONSOLE_STRINGS } = require("../common/constants/strings.constants");
 const COPY_TRADING_STRATEGY_CONFIG = GLOBAL_CONFIG.STRATEGY_CONFIGURATION.COPY_TRADING_STRATEGY;
@@ -30,7 +30,10 @@ const roundUsers = new Map();
  * @returns {any} - Bet Round Event object
  */
 const executeBetDownCopyTradingStrategy = async (epoch, betRoundEvent) => {
-    betRoundEvent.betExecuted = await betDownStrategy(epoch);
+    const txReceipt = await betDownStrategy(epoch);
+    betRoundEvent.betExecuted = txReceipt.betExecuted;
+    betRoundEvent.betAmount = txReceipt.betAmount;
+    betRoundEvent.txGasFee = txReceipt.txGasFee;
     betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.COPYTRADING_BET_DOWN_MESSAGE, { friendAddress: COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE})
     betRoundEvent.bet = BET_DOWN;
     return betRoundEvent;
@@ -46,7 +49,10 @@ const executeBetDownCopyTradingStrategy = async (epoch, betRoundEvent) => {
  * @returns {any} - Bet Round Event object
  */
 const executeBetUpCopyTradingStrategy = async (epoch, betRoundEvent) => {
-    betRoundEvent.betExecuted = await betUpStrategy(epoch);
+    const txReceipt = await betUpStrategy(epoch);
+    betRoundEvent.betExecuted = txReceipt.betExecuted;
+    betRoundEvent.betAmount = txReceipt.betAmount;
+    betRoundEvent.txGasFee = txReceipt.txGasFee;
     betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.COPYTRADING_BET_UP_MESSAGE, { friendAddress: COPY_TRADING_STRATEGY_CONFIG.WALLET_ADDRESS_TO_EMULATE})
     betRoundEvent.bet = BET_UP;
     return betRoundEvent;
@@ -86,15 +92,16 @@ const registerUser = (round, wallet, bet, betAmount) => {
  *
  * @param {any} usersActivity
  * @param {number} round
- * @param {string} wallet - address
+ * @param {any} userRoundActivity - user round activity
  */
-const registerUserActivity = (usersActivity, round, wallet) => {
-    const activity = usersActivity[wallet];
+const registerRoundUserActivity = (usersActivity, round, userRoundActivity) => {
+    const activity = usersActivity[userRoundActivity.wallet];
     if (activity) {
-        activity.rounds.push(round);
+        activity.rounds.push({round: round, bet: userRoundActivity.bet, betAmount: userRoundActivity.betAmount});
+        activity.totalAmountBetted += userRoundActivity.betAmount; 
         activity.roundsPlayed = activity.rounds.length;
     } else {
-        usersActivity[wallet] = { roundsPlayed: 1, rounds: [round] };
+        usersActivity[userRoundActivity.wallet] = { roundsPlayed: 1, totalAmountBetted: userRoundActivity.betAmount, rounds: [{round: round, bet: userRoundActivity.bet, betAmount: userRoundActivity.betAmount}] };
     }
 }
 
@@ -106,17 +113,12 @@ const registerUserActivity = (usersActivity, round, wallet) => {
  * @param {number} round
  */
 const handleUsersActivity = async (round) => {
-    const users = roundUsers.get(round);
-    let totalBetAmount = 0;
+    const usersRoundActivity = roundUsers.get(round);
     const usersActivity = await getUserActivityFromHistory();
-    if (!users) {
+    if (!usersRoundActivity) {
         return;
     }
-    users.forEach(user => {
-        registerUserActivity(usersActivity, round, user.wallet);
-        totalBetAmount += user.betAmount;
-    });
-    await saveRoundUsersInHistory([{ round: round, usersCount: users.length, totalBetAmount: totalBetAmount, users: users }]);
+    usersRoundActivity.forEach(userRoundActivity => { registerRoundUserActivity(usersActivity, round, userRoundActivity); });
     saveUserActivityInHistory(usersActivity);
     roundUsers.delete(round);
 }

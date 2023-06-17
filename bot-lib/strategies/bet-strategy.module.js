@@ -5,19 +5,17 @@
  */
 const { ethers } = require("ethers");
 const { GLOBAL_CONFIG } = require("../../bot-configuration/bot-configuration");
-const { BET_DOWN, BET_UP } = require("../common/constants/bot.constants");
 const { parseFromUsdToCrypto, formatUnit, parseFeeFromCryptoToUsd, getBetAmount } = require("../common/utils.module");
-const { saveRoundInHistory } = require("../history/history.module");
 const { betUp, betDown, isClaimableRound, claimRewards } = require("../smart-contracts/pcs-prediction-smart-contract.module");
 const { getSimulationBalance, updateSimulationBalance } = require("../wallet/wallet.module");
 
 /**
- * Converts the bet amount from dollars to crypto, calls the function to place the bet down and saves the transaction data. In case of simulated mode, it updates the fictitious balance
+ * Converts the bet amount from dollars to crypto, calls the function to place the bet down. In case of simulated mode, it updates the fictitious balance
  * @date 4/22/2023 - 3:57:23 PM
  *
  * @async
  * @param {ethers.BigNumber} epoch - round
- * @returns {Boolean} - flag indicating the execution of the transaction
+ * @returns {any} - Tx Custom Recepit
  */
 const betDownStrategy = async (epoch) => {
     const cryptoBetAmount = parseFromUsdToCrypto(getBetAmount());
@@ -25,17 +23,16 @@ const betDownStrategy = async (epoch) => {
     if (GLOBAL_CONFIG.SIMULATION_MODE) {
         updateSimulationBalance(getSimulationBalance() - getBetAmount() - parseFeeFromCryptoToUsd(transaction.txGasFee));
     }
-    await saveRoundInHistory([{ round: formatUnit(epoch), betAmount: cryptoBetAmount, bet: BET_DOWN, betExecuted: transaction.betExecuted, txGasFee: transaction.txGasFee }]);
-    return transaction.betExecuted;
+    return { betAmount: cryptoBetAmount, betExecuted: transaction.betExecuted, txGasFee: transaction.txGasFee };;
 }
 
 /**
- * Converts the bet amount from dollars to crypto, calls the function to place the bet up and saves the transaction data. In case of simulated mode, it updates the fictitious balance
+ * Converts the bet amount from dollars to crypto, calls the function to place the bet up. In case of simulated mode, it updates the fictitious balance
  * @date 4/22/2023 - 3:57:23 PM
  *
  * @async
  * @param {ethers.BigNumber} epoch - round
- * @returns {Boolean} flag indicating the execution of the transaction
+ * @returns {any} - Tx Custom Recepit
  */
 const betUpStrategy = async (epoch) => {
     const cryptoBetAmount = parseFromUsdToCrypto(getBetAmount());
@@ -43,8 +40,7 @@ const betUpStrategy = async (epoch) => {
     if (GLOBAL_CONFIG.SIMULATION_MODE) {
         updateSimulationBalance(getSimulationBalance() - getBetAmount() - parseFeeFromCryptoToUsd(transaction.txGasFee));
     }
-    await saveRoundInHistory([{ round: formatUnit(epoch), betAmount: cryptoBetAmount, bet: BET_UP, betExecuted: transaction.betExecuted, txGasFee: transaction.txGasFee }]);
-    return transaction.betExecuted;
+    return { betAmount: cryptoBetAmount, betExecuted: transaction.betExecuted, txGasFee: transaction.txGasFee };
 }
 
 /**

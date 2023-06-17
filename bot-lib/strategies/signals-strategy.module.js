@@ -32,11 +32,17 @@ const executeStrategyWithSignals = async (epoch, betRoundEvent) => {
     if (checkSignalsUpPrediction(signals)) {
         betRoundEvent.bet = SIGNALS_STRATEGY_CONFIG.REVERSE_BETTING ? BET_DOWN : BET_UP;
         betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.SIGNAL_UP_MESSAGE, { percentage: percentage(signals.buy, signals.sell) });
-        betRoundEvent.betExecuted = SIGNALS_STRATEGY_CONFIG.REVERSE_BETTING ? await betDownStrategy(epoch) : await betUpStrategy(epoch);
+        const txReceipt = SIGNALS_STRATEGY_CONFIG.REVERSE_BETTING ? await betDownStrategy(epoch) : await betUpStrategy(epoch);
+        betRoundEvent.betExecuted = txReceipt.betExecuted;
+        betRoundEvent.betAmount = txReceipt.betAmount;
+        betRoundEvent.txGasFee = txReceipt.txGasFee;
     } else if (checkSignalsDownPrediction(signals)) {
         betRoundEvent.bet = SIGNALS_STRATEGY_CONFIG.REVERSE_BETTING ? BET_UP : BET_DOWN;
         betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.SIGNAL_DOWN_MESSAGE, { percentage: percentage(signals.sell, signals.buy) });
-        betRoundEvent.betExecuted = SIGNALS_STRATEGY_CONFIG.REVERSE_BETTING ? await betUpStrategy(epoch): await betDownStrategy(epoch);
+        const txReceipt = SIGNALS_STRATEGY_CONFIG.REVERSE_BETTING ? await betUpStrategy(epoch) : await betDownStrategy(epoch);
+        betRoundEvent.betExecuted = txReceipt.betExecuted;
+        betRoundEvent.betAmount = txReceipt.betAmount;
+        betRoundEvent.txGasFee = txReceipt.txGasFee;
     } else {
         betRoundEvent.skipRound = true;
         betRoundEvent.message = evalString(CONSOLE_STRINGS.WARNING_MESSAGE.THRESHOLD_NOT_REACHED, { percentage: (signals.buy > signals.sell ? percentage(signals.buy, signals.sell) : percentage(signals.sell, signals.buy)) });
