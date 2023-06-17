@@ -45,7 +45,7 @@ const CONSOLE_STRINGS = {
         EVENT_PATTERN_NOT_FOUND: "No pattern found. No event {event} repeated {n} times",
         EVENT_NOT_PREDICTABLE: "Previous Rounds's {round} Event not predictable - the absolute difference price {difference} does not reach the threshold: {threshold}",
         PATTERN_STATEGY_BET_MESSAGE: "🔮 The previous round {previous} is very likely to end with the following outcome: {res}",
-        PATTERN_STATEGY_PRICE_MESSAGE: "⚖️ Current price: {currentPrice} is {current} than open price: {openPrice}, price difference: {difference}, it seems that the pattern is respected, {res} event repeated {numberEvent} times!"
+        PATTERN_STATEGY_PRICE_MESSAGE: "⚖️  Current price: {currentPrice} is {current} than open price: {openPrice}, price difference: {difference}, it seems that the pattern is respected, {res} event repeated {numberEvent} times!"
    
     },
     TEMPLATES: {

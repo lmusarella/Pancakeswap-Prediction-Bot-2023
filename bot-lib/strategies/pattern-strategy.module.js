@@ -48,9 +48,9 @@ const executeStrategyWithPatterns = async (epoch, betRoundEvent) => {
     const delta = oracleCurrentPrice - roundFinishLastRoundData.openPrice;
 
     if (delta < 0 && Math.abs(delta) > PATTERN_STRATEGY_CONFIG.DELTA_PRICE_THRESHOLD) {
-        events.push(BET_UP);
-    } else if (delta > 0 && Math.abs(delta) > PATTERN_STRATEGY_CONFIG.DELTA_PRICE_THRESHOLD) {
         events.push(BET_DOWN);
+    } else if (delta > 0 && Math.abs(delta) > PATTERN_STRATEGY_CONFIG.DELTA_PRICE_THRESHOLD) {
+        events.push(BET_UP);
     } else {
         betRoundEvent.skipRound = true;
         betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.EVENT_NOT_PREDICTABLE, { round: epoch.toNumber() - 1, difference: Math.abs(delta), threshold: PATTERN_STRATEGY_CONFIG.DELTA_PRICE_THRESHOLD });
