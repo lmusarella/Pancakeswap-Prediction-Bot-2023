@@ -70,8 +70,8 @@ describe('Signals Strategy - Module - Unit tests', () => {
         betEvent = { id: 1, betAmount: 10, skipRound: false, betExecuted: false, bet: null, message: null };
 
         mockBetStrategyModule = {
-            betDownStrategy: async () => Promise.resolve(true),
-            betUpStrategy: async () => Promise.resolve(false)
+            betDownStrategy: async () => Promise.resolve({betExecuted: true}),
+            betUpStrategy: async () => Promise.resolve({betExecuted: false})
         };
         
         mockSignalsUp = {

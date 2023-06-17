@@ -99,17 +99,14 @@ describe('Copy Trading Strategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleSuccessTx, 'betDown');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
        
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betDownStrategy(epoch);
 
-        expect(result).toBe(true);
+        expect(result.betExecuted).toBe(true);
         expect(spyBetDown).toHaveBeenCalledTimes(1);
         expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
         expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(0);
-        expect(spySaveRoundInHistory).toHaveBeenCalledTimes(1);
-        expect(spySaveRoundInHistory).toHaveBeenCalledWith([{"bet": "bear", "betAmount": 10, "betExecuted": true, "round": 1, "txGasFee": 0.00081}]);
     });
 
     test('TEST: betDownStrategy Not Executed - NO Simulation', async () => {
@@ -118,17 +115,14 @@ describe('Copy Trading Strategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betDown');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betDownStrategy(epoch);
 
-        expect(result).toBe(false);
+        expect(result.betExecuted).toBe(false);
         expect(spyBetDown).toHaveBeenCalledTimes(1);
         expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
         expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(0);
-        expect(spySaveRoundInHistory).toHaveBeenCalledTimes(1);
-        expect(spySaveRoundInHistory).toHaveBeenCalledWith([{"bet": "bear", "betAmount": 10, "betExecuted": false, "round": 1, "txGasFee": 0}]);
     });
 
     test('TEST: betUpStrategy Executed - NO Simulation', async () => {
@@ -137,16 +131,14 @@ describe('Copy Trading Strategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleSuccessTx, 'betUp');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betUpStrategy(epoch);
-        expect(result).toBe(true);
+
+        expect(result.betExecuted).toBe(true);
         expect(spyBetDown).toHaveBeenCalledTimes(1);
         expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
         expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(0);
-        expect(spySaveRoundInHistory).toHaveBeenCalledTimes(1);
-        expect(spySaveRoundInHistory).toHaveBeenCalledWith([{"bet": "bull", "betAmount": 10, "betExecuted": true, "round": 1, "txGasFee": 0.00081}]);
     });
 
     test('TEST: betUpStrategy Not Executed - NO Simulation', async () => {
@@ -155,17 +147,14 @@ describe('Copy Trading Strategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betUp');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betUpStrategy(epoch);
 
-        expect(result).toBe(false);
+        expect(result.betExecuted).toBe(false);
         expect(spyBetDown).toHaveBeenCalledTimes(1);
         expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
         expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(0);
-        expect(spySaveRoundInHistory).toHaveBeenCalledTimes(1);
-        expect(spySaveRoundInHistory).toHaveBeenCalledWith([{"bet": "bull", "betAmount": 10, "betExecuted": false, "round": 1, "txGasFee": 0}]);
     });
 
     test('TEST: betUpStrategy - YES Simulation', async () => {
@@ -174,18 +163,15 @@ describe('Copy Trading Strategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betUp');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
-
+    
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betUpStrategy(epoch);
 
-        expect(result).toBe(false);
+        expect(result.betExecuted).toBe(false);
         expect(spyBetDown).toHaveBeenCalledTimes(1);
         expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
         expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(1);
         expect(spyUpdateSimulationBalance).toHaveBeenCalledWith(15);
-        expect(spySaveRoundInHistory).toHaveBeenCalledTimes(1);
-        expect(spySaveRoundInHistory).toHaveBeenCalledWith([{"bet": "bull", "betAmount": 10, "betExecuted": false, "round": 1, "txGasFee": 0}]);
     });
 
     test('TEST: betDownStrategy - YES Simulation', async () => {
@@ -194,18 +180,15 @@ describe('Copy Trading Strategy - Module - Unit tests', () => {
 
         const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betDown');
         const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-        const spySaveRoundInHistory = jest.spyOn(require(historyModuleUrl), 'saveRoundInHistory');
 
         const betStrategyModule = require(betStrategyModuleUrl);
         const result = await betStrategyModule.betDownStrategy(epoch);
 
-        expect(result).toBe(false);
+        expect(result.betExecuted).toBe(false);
         expect(spyBetDown).toHaveBeenCalledTimes(1);
         expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
         expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(1);
         expect(spyUpdateSimulationBalance).toHaveBeenCalledWith(15);
-        expect(spySaveRoundInHistory).toHaveBeenCalledTimes(1);
-        expect(spySaveRoundInHistory).toHaveBeenCalledWith([{"bet": "bear", "betAmount": 10, "betExecuted": false, "round": 1, "txGasFee": 0}]);
     });
 
     test('TEST: claimStrategy - Call claimRewards', async () => {

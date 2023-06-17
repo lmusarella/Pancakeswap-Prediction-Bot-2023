@@ -79,7 +79,7 @@ const GLOBAL_CONFIG = {
              * @default false
              * @type {boolean}
              */
-            ANTI_MARTINGALE: true, 
+            ANTI_MARTINGALE: false, 
              /**
              * INCREMENT_BET_AMOUNT x BET_AMOUNT = NEW BET_AMOUNT after loss or win (based on ANTI_MARTINGALE flag)
              * @default 2
