@@ -7,6 +7,7 @@ const { ethers } = require('ethers');
 const { signer } = require('../wallet/wallet.module');
 const { ORACLE_BNB_FEED_PRICE_CLINK_ADDRESS } = require("../common/constants/smart-contract.constants");
 const bnbPriceAbi = require("./json_abi/bnb_usd_price_smartcontract_abi.json");
+const { formatUnit } = require('../common/utils.module');
 
 /**
  * Initialization of ORACLE_BNB_FEED_PRICE_CLINK_ADDRESS

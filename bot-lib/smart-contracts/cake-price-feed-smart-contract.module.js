@@ -7,6 +7,7 @@ const { ethers } = require('ethers');
 const { signer } = require('../wallet/wallet.module');
 const { ORACLE_CAKE_FEED_PRICE_CLINK_ADDRESS } = require("../common/constants/smart-contract.constants");
 const cakePriceAbi = require("./json_abi/cake_usd_price_smartcontract_abi.json");
+const { formatUnit } = require('../common/utils.module');
 
 /**
  * Initialization of ORACLE_CAKE_FEED_PRICE_CLINK_ADDRESS
