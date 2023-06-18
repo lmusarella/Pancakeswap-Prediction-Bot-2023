@@ -1,19 +1,25 @@
 const { ethers } = require('ethers');
+const { BET_DOWN, BET_UP } = require('../../../bot-lib/common/constants/bot.constants');
 
-const mockGlobalConfigurationNoSimulation = {
+const mockGlobalConfiguration = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'CAKE',
-        SIMULATION_MODE: false,
-        SIMULATION_CONFIGURATION: {
-            SIMULATION_BALANCE: 25
-        }, 
         BET_CONFIGURATION: {
             BET_AMOUNT: 10,
             DAILY_GOAL: 10,
             STOP_LOSS: 5
         },
         STRATEGY_CONFIGURATION: {
-            CLAIM_REWARDS: false,
+            SELECTED_STRATEGY: 'COPY_TRADING_STRATEGY',
+            QUOTE_STRATEGY: {
+                SELECT_LOWER_QUOTE: false
+            },
+            COPY_TRADING_STRATEGY: {
+                WALLET_ADDRESS_TO_EMULATE: '0xe25E5Db92Ad947c89015f085fD830823F3cF2fB8'
+            }
+        },
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
         },
         ANALYTICS_CONFIGURATION: {
             REGISTER_USERS_ACTIVITY: false
@@ -21,20 +27,25 @@ const mockGlobalConfigurationNoSimulation = {
     }
 };
 
-const mockGlobalConfigurationYesSimulation = {
+const mockGlobalConfigurationQuote = {
     GLOBAL_CONFIG: {
         PCS_CRYPTO_SELECTED: 'CAKE',
-        SIMULATION_MODE: true,
-        SIMULATION_CONFIGURATION: {
-            SIMULATION_BALANCE: 25
-        },  
         BET_CONFIGURATION: {
             BET_AMOUNT: 10,
             DAILY_GOAL: 10,
             STOP_LOSS: 5
         },
         STRATEGY_CONFIGURATION: {
-            CLAIM_REWARDS: true,
+            SELECTED_STRATEGY: 'QUOTE_STRATEGY',
+            QUOTE_STRATEGY: {
+                SELECT_LOWER_QUOTE: false
+            },
+            COPY_TRADING_STRATEGY: {
+                WALLET_ADDRESS_TO_EMULATE: '0xe25E5Db92Ad947c89015f085fD830823F3cF2fB8'
+            }
+        },
+        SIMULATION_CONFIGURATION: {
+            SIMULATION_BALANCE: 25
         },
         ANALYTICS_CONFIGURATION: {
             REGISTER_USERS_ACTIVITY: false
@@ -46,182 +57,139 @@ describe('Copy Trading Strategy - Module - Unit tests', () => {
 
     const epoch = ethers.BigNumber.from("1");
     const configurationUrl = "../../../bot-configuration/bot-configuration";
-    const pscModuleUrl = "../../../bot-lib/smart-contracts/pcs-prediction-smart-contract.module";
     const betStrategyModuleUrl = "../../../bot-lib/strategies/bet-strategy.module";
-    const walletModuleUrl = "../../../bot-lib/wallet/wallet.module";
-    const historyModuleUrl = "../../../bot-lib/history/history.module";
+    const copyTradingStrategyModuleUrl = "../../../bot-lib/strategies/copytrading-strategy.module";
+    const mockHistoryModuleUrl = "../../../bot-lib/history/history.module";
+    const mockPrintModuleUrl = "../../../bot-lib/common/print.module";
 
-    let mockModuleSuccessTx;
-    let mockModuleErrorTx;
+    let betEvent;
+    let mockBetStrategyModule;
+    let mockHistoryModule;
+    let mockPrintModule;
 
-    beforeEach(() => {     
+    beforeEach(() => {
         jest.resetModules();
 
-        mockModuleSuccessTx = {
-            betDown: async () => Promise.resolve({
-                status: 1,
-                gasUsed: 900000,
-                effectiveGasPrice: 900000000,
-                transactionExeption: false
-            }),
-            betUp: async () => Promise.resolve({
-                status: 1,
-                gasUsed: 900000,
-                effectiveGasPrice: 900000000,
-                transactionExeption: false
-            }),
-            claimRewards: async () => Promise.resolve({ status: 1, transactionExeption: false }),
-            isClaimableRound: async () => Promise.resolve(true)
-        };
-        
-        mockModuleErrorTx = {
-            betDown: async () => Promise.resolve({
-                status: 0,
-                gasUsed: 0,
-                effectiveGasPrice: 0,
-                transactionExeption: true
-            }),
-            betUp: async () => Promise.resolve({
-                status: 0,
-                gasUsed: 0,
-                effectiveGasPrice: 0,
-                transactionExeption: true
-            }),
-            claimRewards: async () => Promise.resolve({ status: 0, transactionExeption: true }),
-            isClaimableRound: async () => Promise.resolve(false)
+        betEvent = { id: 1, betAmount: 10, skipRound: false, betExecuted: false, bet: null, message: null };
+
+        mockBetStrategyModule = {
+            betDownStrategy: async () => Promise.resolve({ betExecuted: true }),
+            betUpStrategy: async () => Promise.resolve({ betExecuted: false })
         };
 
+        mockPrintModule = {
+            printMostActiveUserMessage: async () => false,
+        };
+
+        mockHistoryModule = {
+            saveUserActivityInHistory: async () => true,
+            getUserActivityFromHistory: async () => {
+                return {
+                    "0xF60744a047D874d554E95364A63c6bc01AB508Ed": {
+                        roundsPlayed: 1,
+                        totalAmountBetted: 0.17125805210852157,
+                        rounds: [
+                            {
+                                round: 181125,
+                                bet: "bear",
+                                betAmount: 0.17125805210852157
+                            }
+                        ]
+                    },
+                    "0xD60744a047D874d554E95364A63c6bc01AB508Ed": {
+                        roundsPlayed: 2,
+                        totalAmountBetted: 0.17125805210852157,
+                        rounds: [
+                            {
+                                round: 181125,
+                                bet: "bear",
+                                betAmount: 0.17125805210852157
+                            },
+                            {
+                                round: 181126,
+                                bet: "bear",
+                                betAmount: 0.18125805210852157
+                            }
+                        ]
+                    },
+                    "0xH60744a047D874d554E95364A63c6bc01AB508Ed": {
+                        roundsPlayed: 1,
+                        totalAmountBetted: 0.17125805210852157,
+                        rounds: [
+                            {
+                                round: 181125,
+                                bet: "bear",
+                                betAmount: 0.17125805210852157
+                            }
+                        ]
+                    }
+                }
+            }
+        };
+
     });
 
-    test('TEST: betDownStrategy Executed - NO Simulation', async () => {
-        jest.mock(configurationUrl, () => mockGlobalConfigurationNoSimulation);
-        jest.mock(pscModuleUrl, () => mockModuleSuccessTx);
+    test('TEST: isCopyTradingStrategy - true', () => {
+        jest.mock(configurationUrl, () => mockGlobalConfiguration);
+        const copyTradingStrategyModule = require(copyTradingStrategyModuleUrl);
+        const result = copyTradingStrategyModule.isCopyTradingStrategy();
+        expect(result).toBe(true);
+    });
 
-        const spyBetDown = jest.spyOn(mockModuleSuccessTx, 'betDown');
-        const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-       
-        const betStrategyModule = require(betStrategyModuleUrl);
-        const result = await betStrategyModule.betDownStrategy(epoch);
+    test('TEST: isCopyTradingStrategy - false', () => {
+        jest.mock(configurationUrl, () => mockGlobalConfigurationQuote);
+        const copyTradingStrategyModule = require(copyTradingStrategyModuleUrl);
+        const result = copyTradingStrategyModule.isCopyTradingStrategy();
+        expect(result).toBe(false);
+    });
 
-        expect(result.betExecuted).toBe(true);
+    test('TEST: executeBetDownCopyTradingStrategy', async () => {
+        jest.mock(configurationUrl, () => mockGlobalConfiguration);
+        jest.mock(betStrategyModuleUrl, () => mockBetStrategyModule);
+
+        const spyBetDown = jest.spyOn(mockBetStrategyModule, 'betDownStrategy');
+        const spyBetUp = jest.spyOn(mockBetStrategyModule, 'betUpStrategy');
+
+        const copyTradingStrategyModule = require(copyTradingStrategyModuleUrl);
+        const result = await copyTradingStrategyModule.executeBetDownCopyTradingStrategy(epoch, betEvent);
+
+        expect(result.betExecuted).toEqual(true);
+        expect(result.bet).toEqual(BET_DOWN);
+        expect(spyBetUp).toHaveBeenCalledTimes(0);
         expect(spyBetDown).toHaveBeenCalledTimes(1);
-        expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
-        expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(0);
+        expect(spyBetDown).toHaveBeenCalledWith(epoch);
     });
 
-    test('TEST: betDownStrategy Not Executed - NO Simulation', async () => {
-        jest.mock(configurationUrl, () => mockGlobalConfigurationNoSimulation);
-        jest.mock(pscModuleUrl, () => mockModuleErrorTx);
+    test('TEST: executeBetUpCopyTradingStrategy', async () => {
+        jest.mock(configurationUrl, () => mockGlobalConfiguration);
+        jest.mock(betStrategyModuleUrl, () => mockBetStrategyModule);
 
-        const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betDown');
-        const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
+        const spyBetDown = jest.spyOn(mockBetStrategyModule, 'betDownStrategy');
+        const spyBetUp = jest.spyOn(mockBetStrategyModule, 'betUpStrategy');
 
-        const betStrategyModule = require(betStrategyModuleUrl);
-        const result = await betStrategyModule.betDownStrategy(epoch);
+        const copyTradingStrategyModule = require(copyTradingStrategyModuleUrl);
+        const result = await copyTradingStrategyModule.executeBetUpCopyTradingStrategy(epoch, betEvent);
 
-        expect(result.betExecuted).toBe(false);
-        expect(spyBetDown).toHaveBeenCalledTimes(1);
-        expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
-        expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(0);
+        expect(result.betExecuted).toEqual(false);
+        expect(result.bet).toEqual(BET_UP);
+        expect(spyBetUp).toHaveBeenCalledTimes(1);
+        expect(spyBetUp).toHaveBeenCalledWith(epoch);
+        expect(spyBetDown).toHaveBeenCalledTimes(0)
     });
 
-    test('TEST: betUpStrategy Executed - NO Simulation', async () => {
-        jest.mock(configurationUrl, () => mockGlobalConfigurationNoSimulation);
-        jest.mock(pscModuleUrl, () => mockModuleSuccessTx);
+    test('TEST: getMostActiveUser', async () => {
+        jest.mock(configurationUrl, () => mockGlobalConfiguration);
+        jest.mock(mockHistoryModuleUrl, () => mockHistoryModule);
+        jest.mock(mockPrintModuleUrl, () => mockPrintModule);
 
-        const spyBetDown = jest.spyOn(mockModuleSuccessTx, 'betUp');
-        const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
+        const spyGetUserActivityFromHistory = jest.spyOn(mockHistoryModule, 'getUserActivityFromHistory');
+        const spyPrintMostActiveUserMessage = jest.spyOn(mockPrintModule, 'printMostActiveUserMessage');
 
-        const betStrategyModule = require(betStrategyModuleUrl);
-        const result = await betStrategyModule.betUpStrategy(epoch);
+        const copyTradingStrategyModule = require(copyTradingStrategyModuleUrl);
+        await copyTradingStrategyModule.getMostActiveUser();
 
-        expect(result.betExecuted).toBe(true);
-        expect(spyBetDown).toHaveBeenCalledTimes(1);
-        expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
-        expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(0);
+        expect(spyGetUserActivityFromHistory).toHaveBeenCalledTimes(1);
+        expect(spyPrintMostActiveUserMessage).toHaveBeenCalledTimes(1);
+        expect(spyPrintMostActiveUserMessage).toHaveBeenCalledWith("0xD60744a047D874d554E95364A63c6bc01AB508Ed", 2);
     });
-
-    test('TEST: betUpStrategy Not Executed - NO Simulation', async () => {
-        jest.mock(configurationUrl, () => mockGlobalConfigurationNoSimulation);
-        jest.mock(pscModuleUrl, () => mockModuleErrorTx);
-
-        const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betUp');
-        const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-
-        const betStrategyModule = require(betStrategyModuleUrl);
-        const result = await betStrategyModule.betUpStrategy(epoch);
-
-        expect(result.betExecuted).toBe(false);
-        expect(spyBetDown).toHaveBeenCalledTimes(1);
-        expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
-        expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(0);
-    });
-
-    test('TEST: betUpStrategy - YES Simulation', async () => {
-        jest.mock(configurationUrl, () => mockGlobalConfigurationYesSimulation);
-        jest.mock(pscModuleUrl, () => mockModuleErrorTx);
-
-        const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betUp');
-        const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-    
-        const betStrategyModule = require(betStrategyModuleUrl);
-        const result = await betStrategyModule.betUpStrategy(epoch);
-
-        expect(result.betExecuted).toBe(false);
-        expect(spyBetDown).toHaveBeenCalledTimes(1);
-        expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
-        expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(1);
-        expect(spyUpdateSimulationBalance).toHaveBeenCalledWith(15);
-    });
-
-    test('TEST: betDownStrategy - YES Simulation', async () => {
-        jest.mock(configurationUrl, () => mockGlobalConfigurationYesSimulation);
-        jest.mock(pscModuleUrl, () => mockModuleErrorTx);
-
-        const spyBetDown = jest.spyOn(mockModuleErrorTx, 'betDown');
-        const spyUpdateSimulationBalance = jest.spyOn(require(walletModuleUrl), 'updateSimulationBalance');
-
-        const betStrategyModule = require(betStrategyModuleUrl);
-        const result = await betStrategyModule.betDownStrategy(epoch);
-
-        expect(result.betExecuted).toBe(false);
-        expect(spyBetDown).toHaveBeenCalledTimes(1);
-        expect(spyBetDown).toHaveBeenCalledWith(10, epoch);
-        expect(spyUpdateSimulationBalance).toHaveBeenCalledTimes(1);
-        expect(spyUpdateSimulationBalance).toHaveBeenCalledWith(15);
-    });
-
-    test('TEST: claimStrategy - Call claimRewards', async () => {
-        jest.mock(configurationUrl, () => mockGlobalConfigurationYesSimulation);
-        jest.mock(pscModuleUrl, () => mockModuleSuccessTx);
-
-        const spyClaimRewards = jest.spyOn(mockModuleSuccessTx, 'claimRewards');
-        const spyIsClaimable = jest.spyOn(mockModuleSuccessTx, 'isClaimableRound');
-
-        const betStrategyModule = require(betStrategyModuleUrl);
-        const result = await betStrategyModule.claimStrategy(epoch);
-        
-        expect(result).toEqual({ status: 1, transactionExeption: false });
-        expect(spyClaimRewards).toHaveBeenCalledTimes(1);
-        expect(spyIsClaimable).toHaveBeenCalledTimes(1);
-        expect(spyClaimRewards).toHaveBeenCalledWith([epoch]);
-        expect(spyIsClaimable).toHaveBeenCalledWith(epoch);
-    });
-
-
-    test('TEST: claimStrategy - Not Called claimRewards', async () => {
-        jest.mock(configurationUrl, () => mockGlobalConfigurationNoSimulation);
-        jest.mock(pscModuleUrl, () => mockModuleErrorTx);
-
-        const spyClaimRewards = jest.spyOn(mockModuleErrorTx, 'claimRewards');
-        const spyIsClaimable = jest.spyOn(mockModuleErrorTx, 'isClaimableRound');
-
-        const betStrategyModule = require(betStrategyModuleUrl);
-        const result = await betStrategyModule.claimStrategy(epoch);
-       
-        expect(result).toEqual({ status: 0, txGasFee: 0});
-        expect(spyClaimRewards).toHaveBeenCalledTimes(0);
-        expect(spyIsClaimable).toHaveBeenCalledTimes(0);
-    });
-
 });

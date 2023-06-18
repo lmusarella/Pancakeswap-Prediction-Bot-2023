@@ -30,6 +30,8 @@ const executeStrategyWithPatterns = async (epoch, betRoundEvent) => {
     const roundsHystory = await getRoundsFromHistory(ALL_ROUND_HISTORY_FILENAME);
 
     const events = [];
+
+    // Get last rounds result
     for (let i = 0; i < eventsNumberToCheck; i++) {
         if (roundsHystory && roundsHystory.length) {
             const lastRound = roundsHystory.pop();
@@ -47,6 +49,7 @@ const executeStrategyWithPatterns = async (epoch, betRoundEvent) => {
     const oracleCurrentPrice = getCrypto() === BNB_CRYPTO ? await getOracleBnbPrice() : await getOracleCakePrice();
     const delta = oracleCurrentPrice - roundFinishLastRoundData.openPrice;
 
+    // Predict last round ending result by price difference
     if (delta < 0 && Math.abs(delta) > PATTERN_STRATEGY_CONFIG.DELTA_PRICE_THRESHOLD) {
         events.push(BET_DOWN);
     } else if (delta > 0 && Math.abs(delta) > PATTERN_STRATEGY_CONFIG.DELTA_PRICE_THRESHOLD) {
@@ -64,7 +67,6 @@ const executeStrategyWithPatterns = async (epoch, betRoundEvent) => {
         betRoundEvent.txGasFee = txReceipt.txGasFee;
         betRoundEvent.message = evalString(CONSOLE_STRINGS.INFO_MESSAGE.PATTERN_STATEGY_BET_MESSAGE, { res: BET_UP, previous: epoch.toNumber() - 1, numberEvent: PATTERN_STRATEGY_CONFIG.EVENT_PATTERN_NUMBER });
         betRoundEvent.pricemessage = evalString(CONSOLE_STRINGS.INFO_MESSAGE.PATTERN_STATEGY_PRICE_MESSAGE, { current: roundFinishLastRoundData.openPrice > oracleCurrentPrice ? CONSOLE_STRINGS.LESS : CONSOLE_STRINGS.GREATER, res: BET_UP, previous: epoch.toNumber() - 1, numberEvent: PATTERN_STRATEGY_CONFIG.EVENT_PATTERN_NUMBER, currentPrice: oracleCurrentPrice, openPrice: roundFinishLastRoundData.openPrice, difference: delta });
-   
     } else if (events.every(event => event == BET_DOWN)) {
         const txReceipt = await betUpStrategy(epoch);
         betRoundEvent.bet = BET_UP;

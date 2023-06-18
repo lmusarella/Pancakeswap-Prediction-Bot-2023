@@ -142,5 +142,6 @@ module.exports = {
     isCopyTradingStrategy,
     registerUser,
     handleUsersActivity,
-    getMostActiveUser
+    getMostActiveUser,
+    registerRoundUserActivity
 };
