@@ -150,7 +150,7 @@ const printBetRoundEvent = (betRoundEvent) => {
         if (!betRoundEvent.betExecuted) {
             console.log(SPACE, CONSOLE_STRINGS.ERROR_MESSAGE.BET_NOT_EXECUTED);
         } else {
-            console.log(SPACE, CONSOLE_STRINGS.TEMPLATES.BET_ROUND_EVENT.BET_EXECUTED, getBetAmount(), CONSOLE_STRINGS.USD, CONSOLE_STRINGS.EQUAL, parseFromUsdToCrypto(betRoundEvent.betAmount), getCrypto(), betRoundEvent.bet === BET_UP ? CONSOLE_STRINGS.TEMPLATES.BET_ROUND_EVENT.BET_UP : CONSOLE_STRINGS.TEMPLATES.BET_ROUND_EVENT.BET_DOWN);
+            console.log(SPACE, CONSOLE_STRINGS.TEMPLATES.BET_ROUND_EVENT.BET_EXECUTED, getBetAmount(), CONSOLE_STRINGS.USD, CONSOLE_STRINGS.EQUAL, parseFromUsdToCrypto(getBetAmount()), getCrypto(), betRoundEvent.bet === BET_UP ? CONSOLE_STRINGS.TEMPLATES.BET_ROUND_EVENT.BET_UP : CONSOLE_STRINGS.TEMPLATES.BET_ROUND_EVENT.BET_DOWN);
         }
     }
     printSectionSeparator();
