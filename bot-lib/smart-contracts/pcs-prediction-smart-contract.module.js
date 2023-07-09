@@ -135,7 +135,7 @@ const claimRewards = async (rounds) => {
     const txGasFee = formatUnit(gasUsed * effectiveGasPrice, "18");
     return { status: receipt.status, txGasFee: txGasFee };
   } catch (e) {
-    printTransactionError(e, e.error, rounds);
+    printTransactionError(e, e.error, rounds[0]);
     return { status: 0, transactionExeption: true };
   }
 };
