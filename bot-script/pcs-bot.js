@@ -151,6 +151,15 @@ getSmartContract().on(EVENTS.LOCK_ROUND, async (epoch) => {
       }
     }
   }
+
+  const rounds = Array.from(pendingRoundEventStack.values());
+
+  // Check if some round are stuck (deleted or cancelled) and remouved from run time map
+  rounds.forEach(r => {
+    if (round - r >= 5) {
+      pendingRoundEventStack.delete(r);
+    }
+  })
 });
 
 //Listener on "Claim" event from {@PredictionGameSmartContract}
