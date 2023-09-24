@@ -282,28 +282,27 @@ const getEndRoundData = async (epoch, betEvent) => {
  * @returns {and} - end round event object
  */
 const createEndRoundEvent = async (lastRound, epoch) => {
-  const roundWon = lastRound.bet === lastRound.winner && lastRound.betExecuted;
+  const roundWon = lastRound.bet === lastRound.winner;
 
   if(GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.ACTIVE) {
-    if((roundWon && GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.ANTI_MARTINGALE) || (!roundWon && !GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.ANTI_MARTINGALE)) {
+    if((roundWon && lastRound.betExecuted && GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.ANTI_MARTINGALE) || (!roundWon && lastRound.betExecuted && !GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.ANTI_MARTINGALE)) {
         setBetAmount(GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.INCREMENT_BET_AMOUNT * getBetAmount())
     } else {
         setBetAmount(GLOBAL_CONFIG.BET_CONFIGURATION.BET_AMOUNT);
     }
   }
-
   const betTransactionError = lastRound.bet && !lastRound.betExecuted;
   const claimTransaction = await claimStrategy(epoch);
-  lastRound.txClaimGasFee = (GLOBAL_CONFIG.SIMULATION_MODE && roundWon) ? lastRound.txGasFee : claimTransaction.txGasFee;
+  lastRound.txClaimGasFee = (GLOBAL_CONFIG.SIMULATION_MODE && roundWon && lastRound.betExecuted) ? lastRound.txGasFee : claimTransaction.txGasFee;
   const percentageProfit = lastRound.bet == BET_UP ? ((lastRound.bullPayout - 1) * 100) : ((lastRound.bearPayout - 1) * 100);
   const roundEarning = lastRound.bet == BET_UP ? (lastRound.betAmount * lastRound.bullPayout - lastRound.betAmount) : (lastRound.betAmount * lastRound.bearPayout - lastRound.betAmount);
   return {
     id: formatUnit(epoch),
-    roundWon: roundWon,
+    roundWon: roundWon && lastRound.betExecuted,
     betTransactionError: betTransactionError,
     claimExecuted: claimTransaction.transactionExeption ? null : claimTransaction.status === 1,
-    roundProfit: roundWon ? roundEarning : -lastRound.betAmount,
-    percentageProfit: roundWon ? percentageProfit : -100,
+    roundProfit: roundWon && lastRound.betExecuted ? roundEarning : !lastRound.betExecuted ? 0 : -lastRound.betAmount,
+    percentageProfit: roundWon && lastRound.betExecuted? percentageProfit : !lastRound.betExecuted ? 0 : -100,
     betTxGasFee: lastRound.txGasFee,
     txClaimGasFee: lastRound.txClaimGasFee
   };
