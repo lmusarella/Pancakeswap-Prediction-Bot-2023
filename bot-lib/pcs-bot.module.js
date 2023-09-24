@@ -10,7 +10,7 @@ const { getRoundData, getMinBetAmount, getCurrentEpoch, setSmartContratConfig } 
 const { getStatisticFromHistory, saveRoundInHistory, ALL_ROUND_HISTORY_FILENAME, backUpFilesHistory, resetFilesHistory} = require('./history/history.module');
 const { getSimulationBalance, updateSimulationBalance, getBNBBalance } = require('./wallet/wallet.module');
 const { getBinancePrice } = require('./external-data/binance.module');
-const { printWelcomeMessage, printGlobalSettings, printWalletInfo, printSectionSeparator, printStopBotMessage, printInitBotMessage, printStartBotMessage, printCurrencyInfo } = require('./common/print.module');
+const { printWelcomeMessage, printGlobalSettings, printWalletInfo, printSectionSeparator, printStopBotMessage, printInitBotMessage, printStartBotMessage, printCurrencyInfo, printCallToAction } = require('./common/print.module');
 const { executeStrategyWithSignals, isSignalStrategy } = require('./strategies/signals-strategy.module');
 const { isQuoteStrategy, executeStrategyWithQuotes } = require('./strategies/quote-strategy.module');
 const { executeBetUpCopyTradingStrategy, executeBetDownCopyTradingStrategy } = require('./strategies/copytrading-strategy.module');
@@ -89,6 +89,7 @@ const startBotCommand = async () => {
   }
   const balance = await getPersonalBalance();
   printWalletInfo(balance);
+  printCallToAction();
   printStartBotMessage(currentEpoch);
 }
 

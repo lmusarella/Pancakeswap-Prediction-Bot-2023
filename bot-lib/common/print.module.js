@@ -111,6 +111,21 @@ const printWalletInfo = (balance) => {
     printSectionSeparator();
 }
 
+const printCallToAction = () => {
+    console.log(CONSOLE_STRINGS.TEMPLATES.CALL_TO_ACTION.HEADER);
+    printSubSectionSeparator();
+    console.log(SPACE, CONSOLE_STRINGS.TEMPLATES.CALL_TO_ACTION.CALL_TO_ACTION_STAR);
+    printEmptyRow();
+    console.log(SPACE, [CONSOLE_STRINGS.TEMPLATES.CALL_TO_ACTION.CALL_TO_ACTION_REPOLINK]);
+    printEmptyRow();
+    console.log(SPACE, CONSOLE_STRINGS.TEMPLATES.CALL_TO_ACTION.CALL_TO_ACTION_DONATION);
+    printEmptyRow();
+    console.log(SPACE, [CONSOLE_STRINGS.TEMPLATES.CALL_TO_ACTION.CALL_TO_ACTION_DONATION_WALLET]);
+    printEmptyRow();
+    console.log(SPACE, CONSOLE_STRINGS.TEMPLATES.CALL_TO_ACTION.CALL_TO_ACTION_THANK);
+    printSectionSeparator();
+}
+
 const printStartRoundEvent = (startRoundEvent, pendingRounds) => {
     console.log(evalString(CONSOLE_STRINGS.TEMPLATES.START_ROUND_EVENT.HEADER, { round: startRoundEvent.id, time: getConsoleTime() }));
     printSubSectionSeparator();
@@ -128,7 +143,7 @@ const printStartRoundEvent = (startRoundEvent, pendingRounds) => {
         const rounds = Array.from(pendingRounds.values()).map(round => round.id);
         if (GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.ACTIVE && startRoundEvent.validProfit && startRoundEvent.validBalance) {
             console.log(evalString(CONSOLE_STRINGS.INFO_MESSAGE.SKIP_ROUND_MESSAGE, { round: startRoundEvent.id }));
-            console.log(evalString(CONSOLE_STRINGS.INFO_MESSAGE.MARTINGALE_MODE_MESSAGE, { rounds: rounds }));
+            console.log(evalString(CONSOLE_STRINGS.INFO_MESSAGE.MARTINGALE_MODE_MESSAGE, { rounds: rounds , numR: GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.NUM_ROUNDS_AFTER_DELETE_PENDING_ROUNDS}));
             printSectionSeparator();
         } else {
             console.log(evalString(CONSOLE_STRINGS.INFO_MESSAGE.BOT_STOPPING_MESSAGE, { rounds: rounds }));
@@ -237,6 +252,7 @@ module.exports = {
     printEndRoundEvent,
     printStatistics,
     printClaimMessage,
+    printCallToAction,
     printFriendInactivityMessage,
     printMostActiveUserMessage,
     evalString

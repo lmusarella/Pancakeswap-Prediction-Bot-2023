@@ -9,7 +9,7 @@ const { EVENTS } = require("../bot-lib/common/constants/smart-contract.constants
 const { saveRoundInHistory, saveStatisticsInHistory } = require('../bot-lib/history/history.module');
 const { getSmartContract, getRoundData } = require('../bot-lib/smart-contracts/pcs-prediction-smart-contract.module');
 const { stopBotCommand, startBotCommand, executeBetStrategy, createStartRoundEvent, createEndRoundEvent, executeBetUpStrategy, executeBetDownStrategy, getEndRoundData, handleRoundResult } = require('../bot-lib/pcs-bot.module');
-const { updateCryptoUsdPriceFromSmartContract, formatUnit, setCryptoFeeUsdPrice } = require('../bot-lib/common/utils.module');
+const { updateCryptoUsdPriceFromSmartContract, formatUnit, setCryptoFeeUsdPrice, checkCancelledRound } = require('../bot-lib/common/utils.module');
 const { updateSimulationBalance } = require("../bot-lib/wallet/wallet.module");
 const { printStartRoundEvent, printBetRoundEvent, printEndRoundEvent, printStatistics, printClaimMessage, printFriendInactivityMessage } = require("../bot-lib/common/print.module");
 const { isCopyTradingStrategy, registerUser, handleUsersActivity, getMostActiveUser } = require("../bot-lib/strategies/copytrading-strategy.module");
@@ -32,6 +32,7 @@ const init = async () => {
 }
 
 init();
+
 
 //Listener on "StartRound" event from {@PredictionGameSmartContract}
 getSmartContract().on(EVENTS.START_ROUND_EVENT, async (epoch) => {
@@ -153,11 +154,10 @@ getSmartContract().on(EVENTS.LOCK_ROUND, async (epoch) => {
   }
 
   const rounds = Array.from(pendingRoundEventStack.values());
-
-  // Check if some round are stuck (deleted or cancelled) and remouved from run time map
-  rounds.forEach(r => {
-    if (round - r >= 5) {
-      pendingRoundEventStack.delete(r);
+  // Check if some round are stuck (deleted or cancelled) and remouved from runtime map
+  rounds.forEach(async stackRound => {
+    if (checkCancelledRound(round, stackRound.id)) {     
+      pendingRoundEventStack.delete(stackRound.id);
     }
   })
 });

@@ -280,6 +280,16 @@ const deleteFile = (path) => {
 }
 
 /**
+ * Check if a round is burn or cancelled
+ * @date 4/25/2023 - 3:36:11 PM
+ *
+ * @param {String} dir
+ */
+const checkCancelledRound = (currentRound, stackRound) => {
+   return currentRound - stackRound >= GLOBAL_CONFIG.BET_CONFIGURATION.MARTINGALE_CONFIG.NUM_ROUNDS_AFTER_DELETE_PENDING_ROUNDS;  
+}
+
+/**
  * Return the file content
  * @date 4/25/2023 - 3:36:11 PM
  *
@@ -373,5 +383,6 @@ module.exports = {
   getBetAmount,
   setBetAmount,
   getStringDate,
-  deleteFile
+  deleteFile,
+  checkCancelledRound
 };

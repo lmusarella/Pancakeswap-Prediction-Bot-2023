@@ -39,14 +39,13 @@ const CONSOLE_STRINGS = {
         INACTIVITY_USER_MESSAGE: "🥺 Round [{round}] Sorry your friend [{friendAddress}] didn't bet!",
         SKIP_MESSAGE: "♻️  Skip: {message}",
         SKIP_ROUND_MESSAGE: "♻️  Skip round: {round}",
-        MARTINGALE_MODE_MESSAGE: "🚨 Bot is running in Martingale Mode! Waiting pending rounds: [{rounds}]",
+        MARTINGALE_MODE_MESSAGE: "🚨 Bot is running in Martingale Mode! Waiting pending rounds: [{rounds}] - if some rounds remain hanging, they will be eliminated after {numR} rounds.",
         BOT_STOPPING_MESSAGE: "🚨 Bot is stopping! Waiting pending rounds: [{rounds}]",
         WAITING_STRATEGY_MESSAGE: "⏰ Waiting {minutes} minutes before execute {strategy}",
         EVENT_PATTERN_NOT_FOUND: "No pattern found. No event {event} repeated {n} times",
         EVENT_NOT_PREDICTABLE: "Previous Rounds's {round} Event not predictable - the absolute difference price {difference} does not reach the threshold: {threshold}",
         PATTERN_STATEGY_BET_MESSAGE: "🔮 The previous round {previous} is very likely to end with the following outcome: {res}",
-        PATTERN_STATEGY_PRICE_MESSAGE: "⚖️  Current price: {currentPrice} is {current} than open price: {openPrice}, price difference: {difference}, it seems that the pattern is respected, {res} event repeated {numberEvent} times!"
-   
+        PATTERN_STATEGY_PRICE_MESSAGE: "⚖️  Current price: {currentPrice} is {current} than open price: {openPrice}, price difference: {difference}, it seems that the pattern is respected, {res} event repeated {numberEvent} times!",
     },
     TEMPLATES: {
         UTILS: {
@@ -54,6 +53,14 @@ const CONSOLE_STRINGS = {
             LOG_SUB_SECTION_SEPARATOR: "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ",
             SPACE: " ",
             EMPTY: ""
+        },
+        CALL_TO_ACTION: {
+            HEADER: "❤️  DONATIONS & SUPPORT",
+            CALL_TO_ACTION_STAR: "To support me leave a star ⭐ to my GitHub repository",
+            CALL_TO_ACTION_REPOLINK: "https://github.com/lmusarella/Pancakeswap-Prediction-Bot-2023",
+            CALL_TO_ACTION_DONATION: "If you want to make a small donation you can make it on my personal wallet",
+            CALL_TO_ACTION_DONATION_WALLET: "0x0C40e4F3606aE2F41DAc9bB67606f41284755350",
+            CALL_TO_ACTION_THANK: "Thank you so much! 🙏 Happy continuation!"
         },
         COPYRIGHT: {
             FIRST_LINE: "Copyright (c) 2023 l.musarella",

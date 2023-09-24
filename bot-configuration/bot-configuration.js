@@ -85,7 +85,13 @@ const GLOBAL_CONFIG = {
              * @default 2
              * @type {number}
              */
-            INCREMENT_BET_AMOUNT: 2                    
+            INCREMENT_BET_AMOUNT: 2,
+             /**
+             * After how many rounds will the suspended rounds be eliminated, because of PancakeSwap can burn/delete some rounds, which will never be completed, remaining in the hanging rounds stack
+             * @default 5
+             * @type {number}
+             */
+            NUM_ROUNDS_AFTER_DELETE_PENDING_ROUNDS: 5                    
         }
     },
     STRATEGY_CONFIGURATION: {
@@ -99,7 +105,7 @@ const GLOBAL_CONFIG = {
          * @default SIGNAL_STRATEGY
          * @type {string}
          */
-        SELECTED_STRATEGY: 'PATTERN_STRATEGY',
+        SELECTED_STRATEGY: 'QUOTE_STRATEGY',
         /**
          * Time after execute bet strategy when start a new round.
          * @default 265000 in Miliseconds (4.3 Minutes)
